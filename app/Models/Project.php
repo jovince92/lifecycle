@@ -10,15 +10,19 @@ class Project extends Model
     use HasFactory;
     protected $guarded = [];
 
+    protected $with = ['user','project_coordinators'];
+
     public function user(){
         return $this->belongsTo(User::class);
     }
 
     public function project_coordinators(){
-        return $this->hasMany(ProjectCoordinator::class);
+        return $this->belongsToMany(User::class,ProjectCoordinator::class);
     }
 
-    public function project_programmers(){
-        return $this->hasMany(ProjectProgrammer::class);
+    public function programs(){
+        return $this->hasMany(Program::class);
     }
+
+    
 }

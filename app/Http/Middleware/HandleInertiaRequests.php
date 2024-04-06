@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Department;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
@@ -41,6 +43,9 @@ class HandleInertiaRequests extends Middleware
             'ziggy' => function () {
                 return (new Ziggy)->toArray();
             },
+            'projects' =>$request->user()?Project::with(['programs'])->where('is_archived',0)->get():[],
+            'archives' =>$request->user()?Project::where('is_archived',1)->get():[],
+            'departments' => $request->user()?Department::all():[],
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class HRMSController extends Controller
         
         
         
-        $hrms_response = Http::asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
+        $hrms_response = Http::retry(3, 100)->asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
             'idno' => $company_id,
             'what' => 'getinfo',
             'field' => 'personal',
@@ -49,12 +50,13 @@ class HRMSController extends Controller
         }
         
         File::put(str_replace('/','\\',$path).$company_id,$imageContent,true);
-        $user=User::firstOrCreate(
+        $user=User::updateOrCreate(
         ['company_id'=>$company_id],
         [
             'first_name'=>$message['first_name'],
             'last_name'=>$message['last_name'],
             'photo'=>$location.$company_id,
+            'email'=>$message['work_email'],
             'password'=>bcrypt('password'),
             'position'=>$message['job_job_title'],
             'department'=>$message['project'],
@@ -65,5 +67,35 @@ class HRMSController extends Controller
         $request->session()->regenerate();
 
         return redirect()->intended(RouteServiceProvider::HOME);
+    }
+
+    public function sync_departments(){
+        $response = Http::retry(3, 100)->asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[            
+            'what' => 'getdepts',
+            'apitoken' => 'IUQ0PAI7AI3D162IOKJH'
+        ]);
+        $departments = $response['message'];
+        foreach($departments as $department){
+            Department::firstOrCreate(['name'=>$department['myValue']]);
+        }
+        return 'Synced Departments';
+    }
+
+    public function search(string $search=""){
+
+        if(strlen($search)<3) throw ValidationException::withMessages(['search'=>'Search string must be at least 3 characters']);
+
+        $hrms_response = Http::retry(3, 100)->asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
+            'what' => 'getinfo', 
+            'field' => 'fpass',
+            'apitoken' => 'IUQ0PAI7AI3D162IOKJH', 
+            'search' => $search,  
+            'idno' => ""
+        ]);
+        $message= $hrms_response['message'];
+
+        if($hrms_response['code']!="0") return [];
+
+        return $message;
     }
 }
