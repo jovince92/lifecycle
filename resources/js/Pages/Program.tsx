@@ -52,6 +52,17 @@ const Program:FC<Props> = ({program}) => {
                                     </Link>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <Select value={currentLifeCycle} onValueChange={(e:LifeCycle)=>setCurrentLifeCycle(e)} >
+                                <SelectTrigger className='h-9 inline-flex w-auto !ring-0 !ring-offset-0 border-0'>
+                                    <SelectValue placeholder={currentLifeCycle} />
+                                </SelectTrigger>
+                                <SelectContent  >
+                                    {
+                                        Cycles.map((cycle)=><SelectItem key={cycle} value={cycle} >{cycle}</SelectItem>)
+                                    }
+                                </SelectContent>
+                            </Select>
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className='flex flex-col md:flex-row items-center justify-center md:justify-between h-auto '>

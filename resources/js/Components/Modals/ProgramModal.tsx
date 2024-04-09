@@ -169,11 +169,11 @@ const ProgramModal = () => {
                     </div>
                     <div className="space-y-1.5">
                         <Label>Scope of Testing</Label>
-                        <Textarea rows={2}  autoComplete="off" disabled={processing} value={data.scope_of_testing} onChange={({target})=>setData('scope_of_testing',target.value)} />
+                        <Textarea rows={2}  autoComplete="off" disabled={processing} value={data.scope_of_testing||""} onChange={({target})=>setData('scope_of_testing',target.value)} />
                     </div>
                     <div className="space-y-1.5">
                         <Label>Test Strategy</Label>
-                        <Textarea rows={2}  autoComplete="off" disabled={processing} value={data.test_strategy} onChange={({target})=>setData('test_strategy',target.value)} />
+                        <Textarea rows={2}  autoComplete="off" disabled={processing} value={data.test_strategy||""} onChange={({target})=>setData('test_strategy',target.value)} />
                     </div>
                     <div className="space-y-1.5">
                         <Label>Date Prepared</Label>
@@ -191,7 +191,7 @@ const ProgramModal = () => {
                     </div>                    
                     <div className="space-y-1.5">
                         <Label>Resources Needed</Label>
-                        <Textarea rows={2}  autoComplete="off" disabled={processing} value={data.resources_needed} onChange={({target})=>setData('resources_needed',target.value)} />
+                        <Textarea rows={2}  autoComplete="off" disabled={processing} value={data.resources_needed||""} onChange={({target})=>setData('resources_needed',target.value)} />
                     </div>
                     <div className="space-y-1.5">
                         <Label>System Deadline</Label>

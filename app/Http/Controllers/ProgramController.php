@@ -96,12 +96,48 @@ class ProgramController extends Controller
     public function new(Request $request)
     {
         
-        Program::create([
+        $program=Program::create([
             'project_id'=>$request->project_id,
             'name'=>$request->name,
             'department'=>$request->department,
             'step_id'=>Step::where('step',1)->first()->id
         ]);
+
+        $programmers = $request->programmers;
+        foreach($programmers as $programmer){
+            $user=User::updateOrCreate(
+                ['company_id'=>$programmer['idno']],
+                [
+                    'first_name'=>$programmer['first_name'],
+                    'last_name'=>$programmer['last_name'],
+                    'password'=>bcrypt('password'),
+                    'position'=>$programmer['job_job_title'],
+                    'department'=>$programmer['department'],
+                    'email'=>$programmer['work_email'],
+                ]);
+            ProgramProgrammer::create([
+                'program_id'=>$program->id,
+                'user_id'=>$user->id
+            ]);
+        }
+
+        $testers = $request->testers;
+        foreach($testers as $tester){
+            $user=User::updateOrCreate(
+                ['company_id'=>$tester['idno']],
+                [
+                    'first_name'=>$tester['first_name'],
+                    'last_name'=>$tester['last_name'],
+                    'password'=>bcrypt('password'),
+                    'position'=>$tester['job_job_title'],
+                    'department'=>$tester['department'],
+                    'email'=>$tester['work_email'],
+                ]);
+            ProgramTester::create([
+                'program_id'=>$program->id,
+                'user_id'=>$user->id
+            ]);
+        }
         
         return redirect()->back();
     }

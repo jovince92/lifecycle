@@ -1,13 +1,13 @@
 
-import { PageProps, Project } from "@/types";
+import { HrmsInfo, PageProps, Project } from "@/types";
 import { Inertia, Page } from "@inertiajs/inertia";
 import { useForm, usePage } from "@inertiajs/inertia-react";
-import { FC, FormEventHandler, useEffect, useState } from "react"
+import { ChangeEventHandler, FC, FormEventHandler, useEffect, useState } from "react"
 import Item from "./Navigation/Item";
-import { CheckIcon, ChevronsUpDownIcon, FileIcon, FolderIcon, FolderOpenIcon, Loader2 } from "lucide-react";
+import { CheckIcon, ChevronsUpDown, ChevronsUpDownIcon, FileIcon, FolderIcon, FolderOpenIcon, Loader2 } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { useProjectModal } from "@/Hooks/useProjectModal";
-import { useLocalStorage } from "usehooks-ts";
+import { useDebounceValue, useLocalStorage } from "usehooks-ts";
 
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -17,6 +17,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 interface Props{
     selected_project?:Project;
@@ -81,6 +83,20 @@ interface NewProgramModalProps{
 }
 
 const NewProgramModal:FC<NewProgramModalProps>= ({project_id,isOpen,onClose}) =>{
+    const [searchValue,setSearchValue] = useDebounceValue("", 500);
+    const [search,setSearch] = useState('');
+    const [openProgrammers, setOpenProgrammers] = useState(false);
+    const [openTesters, setOpenTesters] = useState(false);
+    const onSearch:ChangeEventHandler<HTMLInputElement> = ({target}) =>{
+        const {value} = target
+        setSearch(value);
+        setSearchValue(value);
+    }
+    const {isError,isLoading,data:employees,refetch,isFetched} = useQuery({
+        queryKey:['search',searchValue],  
+        queryFn: (search) => axios.get(route('hrms.search',{search:search.queryKey[1]})).then((res):HrmsInfo[]=>res.data),
+        enabled:false
+    });
 
     const [openDepartments,setOpenDepartments] = useState(false);
     
@@ -89,13 +105,19 @@ const NewProgramModal:FC<NewProgramModalProps>= ({project_id,isOpen,onClose}) =>
     const {data,setData,processing,post}  = useForm({
         project_id,
         name:'',
-        department:''
+        department:'',
+        
+        programmers:[] as HrmsInfo[],
+        testers:[] as HrmsInfo[],
     });
 
 
     const onSubmit:FormEventHandler<HTMLFormElement> = e =>{
         e.preventDefault();
         if(!data.department) return toast.error('Please select a department.');
+        if(data.project_id===0) return toast.error('Sysmtem error, please refresh the page and try again.');
+        if(data.programmers.length===0) return toast.error('Please add at least one programmer.');
+        if(data.testers.length===0) return toast.error('Please add at least one tester.');
         post(route('programs.new'),{
             onError:e=>{
                 console.error(e);
@@ -108,13 +130,28 @@ const NewProgramModal:FC<NewProgramModalProps>= ({project_id,isOpen,onClose}) =>
         });    
     }
 
+    const addProgrammer = (user:HrmsInfo) => {
+        if(data.programmers.findIndex(({idno})=>idno===user.idno)>-1) return;
+        setData(val=>({...val,programmers:[...val.programmers,user]}));
+    }
+
+    const addTester = (user:HrmsInfo) => {
+        if(data.testers.findIndex(({idno})=>idno===user.idno)>-1) return;
+        setData(val=>({...val,testers:[...val.testers,user]}));
+    }
+
+    useEffect(()=>{
+        if(searchValue.length<3) return;
+        refetch();
+    },[searchValue]);
+
     useEffect(()=>{
         if(!isOpen) return;
         setData(val=>({...val,project_id,name:'',department:''}));
     },[project_id,isOpen]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen} onOpenChange={onClose} modal>
             <DialogContent className="md:min-w-[30rem] w-full">
                 <DialogHeader>
                     <DialogTitle>New Program</DialogTitle>
@@ -166,6 +203,86 @@ const NewProgramModal:FC<NewProgramModalProps>= ({project_id,isOpen,onClose}) =>
                             </PopoverContent>
                         </Popover>
                     </div>
+                    <div className="space-y-1.5">
+                        <Label >Programmers</Label>
+                        <Popover open={openProgrammers} onOpenChange={setOpenProgrammers}>
+                            <PopoverTrigger asChild>
+                                <Button disabled={processing} variant="outline" role="combobox" aria-expanded={openProgrammers} className="w-full justify-between" >
+                                    Search Users...
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0 z-[500]">
+                                <Command className="w-full">
+                                    <Input placeholder="Search users..." className="w-full" onChange={onSearch} value={search} />
+                                    <CommandGroup className="w-full max-h-48 overflow-y-auto">
+                                        {(employees||[]).map((user) => (
+                                            <CommandItem className="w-full"
+                                                key={user.idno}
+                                                onSelect={() => {
+                                                    addProgrammer(user);
+                                                    setOpenProgrammers(false);
+                                                }}>
+                                                <span className="capitalize">{`${user.first_name} ${user.last_name}`}</span>
+                                                <CheckIcon className={cn( "ml-auto h-4 w-4", data.programmers.findIndex(({idno})=>idno===user.idno)>-1 ? "opacity-100" : "opacity-0")}/>
+                                            </CommandItem>
+                                        ))}
+                                        {isLoading&&searchValue.length>2&&<div className="w-full flex items-center gap-x-2"><Loader2 className="h-5 w-5 animate-spin" /><span>Loading Users...</span></div>}
+                                    </CommandGroup>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                        <div className="flex flex-col gap-y-1 w-full">
+                            {
+                                data.programmers.map((user) => (
+                                    <div key={user.idno} className="flex items-center justify-between">
+                                        <span className="capitalize text-sm">{`${user.first_name} ${user.last_name}`}</span>
+                                        <Button disabled={processing} type="button" variant='destructive' size='sm'     onClick={()=>setData(val=>({...val,programmers:val.programmers.filter(({idno})=>idno!==user.idno)} ) )}> Remove </Button>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div> 
+                    <div className="space-y-1.5">
+                        <Label >Testers</Label>
+                        <Popover open={openTesters} onOpenChange={setOpenTesters}>
+                            <PopoverTrigger asChild>
+                                <Button disabled={processing} variant="outline" role="combobox" aria-expanded={openTesters} className="w-full justify-between" >
+                                    Search Users...
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0 z-[500]">
+                                <Command className="w-full">
+                                    <Input placeholder="Search users..." className="w-full" onChange={onSearch} value={search} />
+                                    <CommandGroup className="w-full max-h-48 overflow-y-auto">
+                                        {(employees||[]).map((user) => (
+                                            <CommandItem className="w-full"
+                                                key={user.idno}
+                                                onSelect={() => {
+                                                    addTester(user);
+                                                    setOpenTesters(false);
+                                                }}>
+                                                <span className="capitalize">{`${user.first_name} ${user.last_name}`}</span>
+                                                <CheckIcon className={cn( "ml-auto h-4 w-4", data.testers.findIndex(({idno})=>idno===user.idno)>-1 ? "opacity-100" : "opacity-0")}/>
+                                            </CommandItem>
+                                        ))}
+                                        {isLoading&&searchValue.length>2&&<div className="w-full flex items-center gap-x-2"><Loader2 className="h-5 w-5 animate-spin" /><span>Loading Users...</span></div>}
+                                    </CommandGroup>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                        <div className="flex flex-col gap-y-1 w-full">
+                            {
+                                data.testers.map((user) => (
+                                    <div key={user.idno} className="flex items-center justify-between">
+                                        <span className="capitalize text-sm">{`${user.first_name} ${user.last_name}`}</span>
+                                        <Button disabled={processing} type="button" variant='destructive' size='sm'     onClick={()=>setData(val=>({...val,testers:val.testers.filter(({idno})=>idno!==user.idno)} ) )}> Remove </Button>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>   
                 </form>
                 <DialogFooter>
                     <Button form='new_program' type="submit" disabled={processing}>

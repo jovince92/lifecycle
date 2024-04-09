@@ -111,7 +111,7 @@ const Item:FC<Props> = ({Icon,label,onClick,id,documentIcon,active,expanded,isSe
                                     </div>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Hint side='left' label='Add a Program to this Project'>
+                            <Hint side='bottom' label='Add a Program to this Project'>
                                 <div role='button' onClick={handleCreate} className=' rounded-full opacity-0 group-hover:opacity-100 transition h-full ml-auto  hover:bg-secondary'>
                                     <Plus className='h-5 w-5 '/>
                                 </div>
