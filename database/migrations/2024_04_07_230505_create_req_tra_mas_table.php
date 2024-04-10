@@ -15,7 +15,10 @@ class CreateReqTraMasTable extends Migration
     {
         Schema::create('req_tra_mas', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('teq_req_doc_id')->index();
             $table->timestamps();
+
+            $table->foreign('teq_req_doc_id')->references('id')->on('teq_req_docs')->onDelete('cascade');
         });
     }
 

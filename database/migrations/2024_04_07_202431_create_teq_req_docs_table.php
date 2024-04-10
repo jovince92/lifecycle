@@ -15,12 +15,12 @@ class CreateTeqReqDocsTable extends Migration
     {
         Schema::create('teq_req_docs', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('project_id')->index();
+            $table->unsignedBigInteger('program_id')->index();
             $table->string('accuracy');
             $table->string('output_format');
             $table->timestamps();
 
-            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
+            $table->foreign('program_id')->references('id')->on('programs')->onDelete('cascade');
         });
     }
 

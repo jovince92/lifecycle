@@ -25,4 +25,12 @@ class Program extends Model
     public function step(){
         return $this->belongsTo(Step::class);
     }
+
+    public function business_requirement_document(){
+        return $this->hasOne(BusReqDoc::class);
+    }
+
+    public function techinical_requirement_document(){
+        return $this->hasOne(TeqReqDoc::class);
+    }
 }

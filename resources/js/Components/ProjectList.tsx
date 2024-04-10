@@ -126,7 +126,8 @@ const NewProgramModal:FC<NewProgramModalProps>= ({project_id,isOpen,onClose}) =>
             onSuccess:()=>{
                 toast.success('Program created successfully.');
                 onClose();
-            }
+            },
+            preserveState:false
         });    
     }
 
@@ -235,7 +236,7 @@ const NewProgramModal:FC<NewProgramModalProps>= ({project_id,isOpen,onClose}) =>
                         <div className="flex flex-col gap-y-1 w-full">
                             {
                                 data.programmers.map((user) => (
-                                    <div key={user.idno} className="flex items-center justify-between">
+                                    <div key={user.idno} className="flex items-center justify-between ">
                                         <span className="capitalize text-sm">{`${user.first_name} ${user.last_name}`}</span>
                                         <Button disabled={processing} type="button" variant='destructive' size='sm'     onClick={()=>setData(val=>({...val,programmers:val.programmers.filter(({idno})=>idno!==user.idno)} ) )}> Remove </Button>
                                     </div>

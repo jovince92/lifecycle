@@ -50,7 +50,7 @@ class HRMSController extends Controller
         }
         
         File::put(str_replace('/','\\',$path).$company_id,$imageContent,true);
-        $user=User::updateOrCreate(
+        $user=User::firstOrCreate(
         ['company_id'=>$company_id],
         [
             'first_name'=>$message['first_name'],
@@ -85,7 +85,7 @@ class HRMSController extends Controller
 
         if(strlen($search)<3) throw ValidationException::withMessages(['search'=>'Search string must be at least 3 characters']);
 
-        $hrms_response = Http::retry(3, 100)->asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
+        $hrms_response = Http::asForm()->post('idcsi-officesuites.com:8080/hrms/api.php',[
             'what' => 'getinfo', 
             'field' => 'fpass',
             'apitoken' => 'IUQ0PAI7AI3D162IOKJH', 
@@ -97,5 +97,15 @@ class HRMSController extends Controller
         if($hrms_response['code']!="0") return [];
 
         return $message;
+    }
+
+    public function email(Request $request){
+        $request->validate([
+            'email' => 'required|unique:users|max:255',
+        ]);
+        $user = User::findOrFail($request->user_id);
+        
+        $user->update(['email'=>$request->email]);
+        return redirect()->back();
     }
 }

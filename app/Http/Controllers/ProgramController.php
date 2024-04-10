@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\TRDNotification;
 use App\Models\Program;
 use App\Models\ProgramProgrammer;
 use App\Models\ProgramTester;
@@ -9,6 +10,7 @@ use App\Models\Step;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class ProgramController extends Controller
@@ -56,7 +58,7 @@ class ProgramController extends Controller
 
         $programmers = $request->programmers;
         foreach($programmers as $programmer){
-            $user=User::updateOrCreate(
+            $user=User::firstOrCreate(
                 ['company_id'=>$programmer['idno']],
                 [
                     'first_name'=>$programmer['first_name'],
@@ -74,7 +76,7 @@ class ProgramController extends Controller
 
         $testers = $request->testers;
         foreach($testers as $tester){
-            $user=User::updateOrCreate(
+            $user=User::firstOrCreate(
                 ['company_id'=>$tester['idno']],
                 [
                     'first_name'=>$tester['first_name'],
@@ -105,7 +107,7 @@ class ProgramController extends Controller
 
         $programmers = $request->programmers;
         foreach($programmers as $programmer){
-            $user=User::updateOrCreate(
+            $user=User::firstOrCreate(
                 ['company_id'=>$programmer['idno']],
                 [
                     'first_name'=>$programmer['first_name'],
@@ -123,7 +125,7 @@ class ProgramController extends Controller
 
         $testers = $request->testers;
         foreach($testers as $tester){
-            $user=User::updateOrCreate(
+            $user=User::firstOrCreate(
                 ['company_id'=>$tester['idno']],
                 [
                     'first_name'=>$tester['first_name'],
@@ -150,7 +152,7 @@ class ProgramController extends Controller
      */
     public function show($id)
     {
-        $program=Program::with(['project'])->where('id',$id)->firstOrFail();
+        $program=Program::with(['project','business_requirement_document','techinical_requirement_document'])->where('id',$id)->firstOrFail();
         Inertia::share('selected_program',$program);
         return Inertia::render('Program',[
             'program'=>$program
@@ -200,7 +202,7 @@ class ProgramController extends Controller
         });
         $programmers = $request->programmers;
         foreach($programmers as $programmer){
-            $user=User::updateOrCreate(
+            $user=User::firstOrCreate(
                 ['company_id'=>$programmer['idno']],
                 [
                     'first_name'=>$programmer['first_name'],
@@ -219,7 +221,7 @@ class ProgramController extends Controller
 
         $testers = $request->testers;
         foreach($testers as $tester){
-            $user=User::updateOrCreate(
+            $user=User::firstOrCreate(
                 ['company_id'=>$tester['idno']],
                 [
                     'first_name'=>$tester['first_name'],
@@ -248,6 +250,45 @@ class ProgramController extends Controller
     {
         $program = Program::findOrFail($id);
         $program->delete();
+        return redirect()->back();
+    }
+
+    public function trd_notif(Request $request){
+        $program = Program::findOrFail($request->program_id);
+        $testers = $program->program_testers;
+        
+        //create an array of emails from $users->email field
+        $emails = array_map(function($user) {
+            return $user['email'];
+        }, $testers->toArray());
+        
+        $coordinators = $program->project->project_coordinators;
+        $programmers = $program->program_programmers;
+        
+        $coordinator_emails = array_map(function($user) {
+            return $user['email'];
+        }, $coordinators->toArray());
+
+        $programmer_emails = array_map(function($user) {
+            return $user['email'];
+        }, $programmers->toArray());
+
+        $cc_emails = array_merge($coordinator_emails,$programmer_emails);
+
+        Mail::to($emails)
+                ->cc($cc_emails)
+                ->send(new TRDNotification(
+                    env('MAIL_FROM_NAME','DDC Software'),
+                    env('MAIL_FROM_ADDRESS','donotreply@ddc-software.com'),
+                    $request->subject,
+                    $request->body
+                )
+            );
+
+        $next_step = Step::where('step',3)->first();
+        $program->update([
+            'step_id'=>$next_step->id
+        ]);
         return redirect()->back();
     }
 }

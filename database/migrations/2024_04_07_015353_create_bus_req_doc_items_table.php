@@ -16,7 +16,7 @@ class CreateBusReqDocItemsTable extends Migration
         Schema::create('bus_req_doc_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('bus_req_doc_id')->index();
-            $table->string('guid')->index();
+            $table->string('guid')->index()->nullable();
             $table->string('module');
             $table->string('applicable_roles');
             $table->text('description');

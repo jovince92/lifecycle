@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class TeqReqDoc extends Model
 {
     use HasFactory;
+
+    public function items(){
+        return $this->hasMany(TeqReqDocItem::class);
+    }
 }

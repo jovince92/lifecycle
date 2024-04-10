@@ -50,7 +50,7 @@ class ProjectController extends Controller
             
             
             
-            $user=User::updateOrCreate(
+            $user=User::firstOrCreate(
             ['company_id'=>$coordinator['idno']],
             [
                 'first_name'=>$coordinator['first_name'],
@@ -123,7 +123,7 @@ class ProjectController extends Controller
             
             
             
-            $user=User::updateOrCreate(
+            $user=User::firstOrCreate(
             ['company_id'=>$coordinator['idno']],
             [
                 'first_name'=>$coordinator['first_name'],

@@ -1,9 +1,15 @@
+import NoEmailAlert from '@/Components/Modals/NoEmailAlert';
 import Navigation from '@/Components/Navigation/Navigation';
 import SearchCommand from '@/Components/SearchCommand';
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/Components/ui/alert-dialog';
+import { Button } from '@/Components/ui/button';
 import { ModalProvider } from '@/Providers/ModalProvider';
 import { cn } from '@/lib/utils';
-import { Project } from '@/types';
-import {FC, ReactNode} from 'react';
+import { PageProps, Project } from '@/types';
+import { Page } from '@inertiajs/inertia';
+import { usePage } from '@inertiajs/inertia-react';
+import { AlertTriangle } from 'lucide-react';
+import { FC, ReactNode, useMemo, useState } from 'react';
 
 interface Props {
     children: ReactNode;
@@ -11,6 +17,8 @@ interface Props {
 }
 
 const Layout:FC<Props> = ({children,selected_project}) => {
+    
+    
     return (
         <>
             <SearchCommand />
@@ -21,6 +29,7 @@ const Layout:FC<Props> = ({children,selected_project}) => {
                 </main>
             </div>
             <ModalProvider />
+            <NoEmailAlert />
         </>
     );
 };

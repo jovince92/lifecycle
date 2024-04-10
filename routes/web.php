@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\HRMSController;
+use App\Http\Controllers\BusinessRequirementController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
 use App\Models\User;
@@ -47,11 +48,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/new', [ProgramController::class,'new'])->name('new');
         Route::post('/update/{id}', [ProgramController::class,'update'])->name('update');
         Route::post('/destroy/{id}', [ProgramController::class,'destroy'])->name('destroy');
+        Route::post('/trd_notif', [ProgramController::class,'trd_notif'])->name('trd_notif');
+    });
+
+    Route::prefix('business_requirement')->name('business_requirement.')->group(function(){
+        Route::post('/store', [BusinessRequirementController::class,'store'])->name('store');
+        Route::post('/update/{id}', [BusinessRequirementController::class,'update'])->name('update');
+        Route::post('/item/store', [BusinessRequirementController::class,'item_store'])->name('item.store');
+        Route::post('/item/destroy/{id}', [BusinessRequirementController::class,'item_destroy'])->name('item.destroy');
     });
     
     Route::prefix('hrms')->name('hrms.')->group(function () {
         Route::get('/sync_departments', [HRMSController::class,'sync_departments'])->name('sync_departments');
         Route::get('/search/{search?}', [HRMSController::class,'search'])->name('search');
+        Route::post('/email', [HRMSController::class,'email'])->name('email');
     });
     
 });

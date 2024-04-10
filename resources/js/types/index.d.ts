@@ -28,6 +28,8 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
         name:string;
     }[];
     selected_program?: Program;
+    users_with_no_email:User[];
+    steps:Step[];
 };
 
 
@@ -71,6 +73,9 @@ export interface Program extends TimeStamps{
 
     program_programmers:User[];
     program_testers:User[];
+
+    business_requirement_document:BusinessRequirementsDocument;
+    techinical_requirement_document:TechnicalRequirementsDocument;
 } 
 
 
@@ -88,6 +93,48 @@ export interface Step{
     id:number;
     step:number;
     name:string;
+}
+
+
+export interface BusinessRequirementsDocument extends TimeStamps{
+    id:number;
+    program_id:number;
+    user_id:number;
+    volume:string;
+    turnaround:string;
+    accuracy:string;
+    output_format:string;
+    program:Program;
+    user:User;
+    items:BusinessRequirementsDocumentItem[];    
+}
+
+export interface BusinessRequirementsDocumentItem{
+    id:number;
+    bus_req_doc_id:number;
+    guid:string;
+    module:string;
+    applicable_roles:string;
+    description:string;
+}
+
+export interface TechnicalRequirementsDocument extends TimeStamps{
+    id:number;
+    program_id:number;
+    accuracy:string;
+    output_format:string;
+    program:Program;
+    items:TechnicalRequirementsDocumentItem[]; 
+}
+
+export interface TechnicalRequirementsDocumentItem {
+    id:number;
+    teq_req_doc_id:number;
+    req_description:string;
+    test_case_id:string;
+    test_case_description:string;
+    test_case_remarks:string;
+    test_case_status:string;    
 }
 
 
