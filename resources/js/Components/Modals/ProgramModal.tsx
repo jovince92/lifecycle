@@ -98,7 +98,7 @@ const ProgramModal = () => {
         post(href,{
             onSuccess:()=>{
                 onClose();
-                toast.success(!program?'Program added successfully.': 'Program updated successfully.');
+                toast.success('Test Plan Set!');
             },
             onError:()=>toast.error('An error occured, please try again later.')
         });
@@ -108,7 +108,7 @@ const ProgramModal = () => {
         <Sheet open={isOpen}  modal >
             <SheetContent className="h-full flex flex-col bg-background z-[200] min-w-[100vw] md:min-w-[50vw] " side='left'>
                 <SheetHeader className="h-auto px-3.5">
-                    <SheetTitle> {!program?'Add a Program':'Make Changes to this Program'} </SheetTitle>
+                    <SheetTitle> TEST PLAN </SheetTitle>
                     <SheetDescription>
                         {!program?'Fill in the form below to add a new program.':'Edit the form below to update the program details.'}
                     </SheetDescription>
@@ -176,7 +176,7 @@ const ProgramModal = () => {
                         <Textarea rows={2}  autoComplete="off" disabled={processing} value={data.test_strategy||""} onChange={({target})=>setData('test_strategy',target.value)} />
                     </div>
                     <div className="space-y-1.5">
-                        <Label>Date Prepared</Label>
+                        <Label>Testing Schedule</Label>
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal",!data.testing_schedule && "text-muted-foreground")}>
@@ -293,7 +293,7 @@ const ProgramModal = () => {
                         Cancel
                     </Button>   
                     <Button form="program" disabled={processing} type="submit">
-                        {processing? <Loader2 className="animate-spin h-5 w-5" />:'Save changes'}
+                        {processing? <Loader2 className="animate-spin h-5 w-5" />:'Save Test Plan'}
                     </Button>                    
                 </SheetFooter>
             </SheetContent>

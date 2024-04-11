@@ -30,6 +30,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     selected_program?: Program;
     users_with_no_email:User[];
     steps:Step[];
+    software_manager:User;
 };
 
 
@@ -76,6 +77,7 @@ export interface Program extends TimeStamps{
 
     business_requirement_document:BusinessRequirementsDocument;
     techinical_requirement_document:TechnicalRequirementsDocument;
+    program_setup_schedule:ProgramSetupSchedule;
 } 
 
 
@@ -134,7 +136,13 @@ export interface TechnicalRequirementsDocumentItem {
     test_case_id:string;
     test_case_description:string;
     test_case_remarks:string;
-    test_case_status:string;    
+    test_case_status:'ongoing'|'success'|'failed';    
+}
+
+export interface ProgramSetupSchedule extends TimeStamps{
+    id:number;
+    program_id:number;
+    date:string;
 }
 
 
@@ -143,5 +151,10 @@ export type LifeCycle =
     'Technical Requirements Document' |
     'Setup Schedule' |
     'Test Plan'|
-    'Requirement Traceability Matrix'
+    'Requirement Traceability Matrix'|
+    'Send an email of the schedule'|
+    'Send an email of the Test Plan'|
+    'Send an email to inform of failed test'|
+    'Send an email to inform of completed test'|
+    'Send an email to Software manager informing all test cases are passed'
 ;

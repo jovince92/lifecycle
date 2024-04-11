@@ -1,11 +1,12 @@
 import { Program } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "../ui/button";
-import {  ChevronsLeftRight, ExternalLinkIcon, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {  ChevronsLeftRight, ExternalLinkIcon, ListOrdered, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { useProgramModal } from "@/Hooks/useProgramModal";
 import { useDeleteProgram } from "@/Hooks/useDeleteProgram";
 import { Link } from "@inertiajs/inertia-react";
+import { useChangeStepModal } from "@/Hooks/useChangeStepModal";
 
 export const Columns: ColumnDef<Program>[] = [
     {
@@ -71,6 +72,8 @@ export const Columns: ColumnDef<Program>[] = [
             const {id} = row.original;
             const {onOpen} = useProgramModal();
             const {onOpen:onDelete} = useDeleteProgram();
+            
+            const {onOpen:openChangeStep} = useChangeStepModal();
             return(
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -86,6 +89,9 @@ export const Columns: ColumnDef<Program>[] = [
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={()=>onDelete(id)}>
                             <Trash2 className="h-4 w-4 mr-2" />Delete
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={()=>openChangeStep(row.original)}>
+                            <ListOrdered className="h-4 w-4 mr-2" />Change Next Step
                         </DropdownMenuItem>
                         
                     </DropdownMenuContent>

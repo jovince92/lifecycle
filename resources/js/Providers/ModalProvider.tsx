@@ -1,4 +1,5 @@
 import ArchiveProjectModal from "@/Components/Modals/ArchiveProjectModal"
+import ChangeStepModal from "@/Components/Modals/ChangeStepModal"
 import DeleteProgramModal from "@/Components/Modals/DeleteProgramModal"
 import DeleteProjectModal from "@/Components/Modals/DeleteProjectModal"
 import ProgramModal from "@/Components/Modals/ProgramModal"
@@ -12,6 +13,7 @@ export const ModalProvider = () => {
             <ArchiveProjectModal />
             <DeleteProjectModal />
             <DeleteProgramModal />
+            <ChangeStepModal />
         </>
     )
 }

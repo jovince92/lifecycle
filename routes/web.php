@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\HRMSController;
 use App\Http\Controllers\BusinessRequirementController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TechnicalRequirementController;
 use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Http;
@@ -48,7 +49,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/new', [ProgramController::class,'new'])->name('new');
         Route::post('/update/{id}', [ProgramController::class,'update'])->name('update');
         Route::post('/destroy/{id}', [ProgramController::class,'destroy'])->name('destroy');
+        Route::post('/next_step/{id}', [ProgramController::class,'next_step'])->name('next_step');
+        
+        Route::post('/setup_sched', [ProgramController::class,'setup_sched'])->name('setup_sched');
+
+        //Email routes below:        
         Route::post('/trd_notif', [ProgramController::class,'trd_notif'])->name('trd_notif');
+        Route::post('/notify_setup_comitee', [ProgramController::class,'notify_setup_comitee'])->name('notify_setup_comitee');        
+        Route::post('/setup_sched_reminder', [ProgramController::class,'setup_sched_reminder'])->name('setup_sched_reminder');       
+        Route::post('/failed_test', [ProgramController::class,'failed_test'])->name('failed_test');
+        Route::post('/completed_test', [ProgramController::class,'completed_test'])->name('completed_test');
+        Route::post('/test_cases_passed', [ProgramController::class,'test_cases_passed'])->name('test_cases_passed');
     });
 
     Route::prefix('business_requirement')->name('business_requirement.')->group(function(){
@@ -56,6 +67,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/update/{id}', [BusinessRequirementController::class,'update'])->name('update');
         Route::post('/item/store', [BusinessRequirementController::class,'item_store'])->name('item.store');
         Route::post('/item/destroy/{id}', [BusinessRequirementController::class,'item_destroy'])->name('item.destroy');
+    });
+
+    Route::prefix('tech_requirement')->name('tech_requirement.')->group(function(){
+        Route::post('/store', [TechnicalRequirementController::class,'store'])->name('store');
+        Route::post('/update/{id}', [TechnicalRequirementController::class,'update'])->name('update');
+        Route::post('/item/store', [TechnicalRequirementController::class,'item_store'])->name('item.store');
+        Route::post('/item/update/{id}', [TechnicalRequirementController::class,'item_update'])->name('item.update');
+        Route::post('/item/destroy/{id}', [TechnicalRequirementController::class,'item_destroy'])->name('item.destroy');
     });
     
     Route::prefix('hrms')->name('hrms.')->group(function () {

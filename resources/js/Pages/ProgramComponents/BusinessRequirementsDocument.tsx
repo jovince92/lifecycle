@@ -11,7 +11,7 @@ import BusReqItemModal from './BusinessRequirementsDocument/BusReqItemModal';
 import { Inertia } from '@inertiajs/inertia';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import TRDNotificationModal from './TRDNotificationModal';
+import TRDNotificationModal from './TechnicalRequirementsDocument/TRDNotificationModal';
 
 interface Props {
     program:Program;
@@ -22,6 +22,13 @@ const BusinessRequirementsDocument:FC<Props> = ({program}) => {
     const [showNewBusinessRequirementsItem,setShowNewBusinessRequirementsItem] = useState(false);
     
     const [showTRDNotificationModal,setShowTRDNotificationModal] = useState(false);
+
+    const openTRDNotificationModal = () =>{
+        if(!program.business_requirement_document) return;
+        if(program.business_requirement_document.items.length <1) return toast.error('Cannot notify System Tester to create TRD. No Business Requirements Items found');
+        setShowTRDNotificationModal(true);
+    }
+
     return (
         <>
             <div className='w-full h-full border rounded-lg flex items-center justify-center'>
@@ -54,7 +61,7 @@ const BusinessRequirementsDocument:FC<Props> = ({program}) => {
                                         </Button>
                                     </Hint>
                                     <Hint label='Notify System Tester to create TRD '>
-                                        <Button onClick={()=>setShowTRDNotificationModal(true)} size='icon' >
+                                        <Button onClick={openTRDNotificationModal} size='icon' >
                                             <MailPlus/>
                                         </Button>
                                     </Hint>
@@ -93,21 +100,21 @@ const BusinessRequirementsDocument:FC<Props> = ({program}) => {
                                 </div>                        
                             </div>
                             <Table className='flex-1'>
-                                <TableHeader className='!border-t sticky top-0 bg-background z-50'>
+                                <TableHeader className='!border-2 sticky top-0 bg-background z-50'>
                                     <TableRow>                                
-                                        <TableHead className='!border-x !font-light'>
+                                        <TableHead className='!border !font-light'>
                                             BR#
                                         </TableHead>
-                                        <TableHead className='!border-x !font-light'>
+                                        <TableHead className='!border !font-light'>
                                             Module
                                         </TableHead>
-                                        <TableHead className='!border-x !font-light'>
+                                        <TableHead className='!border !font-light'>
                                             Applicable Roles
                                         </TableHead>
-                                        <TableHead className='!border-x !font-light'>
+                                        <TableHead className='!border !font-light'>
                                             Description
                                         </TableHead>
-                                        <TableHead className='!border-x !font-light'>
+                                        <TableHead className='!border !font-light'>
                                             Delete
                                         </TableHead>
                                     </TableRow>
@@ -154,11 +161,11 @@ const BRItem:FC<BRItemProps> = ({item}) =>{
 
     return (
         <TableRow>
-            <TableCell className='!border-x'>{item.id}</TableCell>
-            <TableCell className='!border-x'>{item.module}</TableCell>
-            <TableCell className='!border-x'>{item.applicable_roles}</TableCell>
-            <TableCell className='!border-x'>{item.description}</TableCell>
-            <TableCell className='!border-x'>
+            <TableCell className='!border'>{item.id}</TableCell>
+            <TableCell className='!border'>{item.module}</TableCell>
+            <TableCell className='!border'>{item.applicable_roles}</TableCell>
+            <TableCell className='!border'>{item.description}</TableCell>
+            <TableCell className='!border'>
                 <Button disabled={loading} onClick={onDelete} size='icon' variant='destructive'>
                     <Icon className={cn(loading && 'animate-spin')}/>
                 </Button>

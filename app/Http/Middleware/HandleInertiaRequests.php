@@ -50,6 +50,7 @@ class HandleInertiaRequests extends Middleware
             'departments' => $request->user()?Department::all():[],
             'users_with_no_email' => $request->user()?User::where('email',null)->orWhere('email','')->get():[],
             'steps'=> $request->user()?Step::all():[],
+            'software_manager'=> User::where('company_id','LS50')->first(),
         ]);
     }
 }

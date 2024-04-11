@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\FailedTest;
+use App\Mail\NotifySetUpCommitee;
+use App\Mail\SetUpSchedule;
 use App\Mail\TRDNotification;
 use App\Models\Program;
 use App\Models\ProgramProgrammer;
+use App\Models\ProgramSetupSchedule;
 use App\Models\ProgramTester;
 use App\Models\Step;
 use App\Models\User;
@@ -152,7 +156,7 @@ class ProgramController extends Controller
      */
     public function show($id)
     {
-        $program=Program::with(['project','business_requirement_document','techinical_requirement_document'])->where('id',$id)->firstOrFail();
+        $program=Program::with(['project','business_requirement_document','techinical_requirement_document','program_setup_schedule'])->where('id',$id)->firstOrFail();
         Inertia::share('selected_program',$program);
         return Inertia::render('Program',[
             'program'=>$program
@@ -237,6 +241,12 @@ class ProgramController extends Controller
             ]);
         }
 
+        if($program->step_id==Step::where('step',7)->first()->id){
+            $program->update([
+                'step_id'=>Step::where('step',8)->first()->id
+            ]);
+        }
+
         return redirect()->back();
     }
 
@@ -288,6 +298,189 @@ class ProgramController extends Controller
         $next_step = Step::where('step',3)->first();
         $program->update([
             'step_id'=>$next_step->id
+        ]);
+        return redirect()->back();
+    }
+
+    public function notify_setup_comitee(Request $request){
+        $program = Program::findOrFail($request->program_id);
+        $testers = $program->program_testers;
+        $programmers = $program->program_programmers;
+        $coordinators = $program->project->project_coordinators;
+
+        $emails = array_map(function($user) {
+            return $user['email'];
+        }, $coordinators->toArray());
+
+        $tester_emails = array_map(function($user) {
+            return $user['email'];
+        }, $testers->toArray());
+
+        $programmer_emails = array_map(function($user) {
+            return $user['email'];
+        }, $programmers->toArray());
+
+        $cc_emails = array_merge($tester_emails,$programmer_emails);
+
+        Mail::to($emails)
+                ->cc($cc_emails)
+                ->send(new NotifySetUpCommitee(
+                    env('MAIL_FROM_NAME','DDC Software'),
+                    env('MAIL_FROM_ADDRESS','donotreply@ddc-software.com'),
+                    $request->subject,
+                    $request->body
+                )
+            );
+
+        $next_step = Step::where('step',5)->first();
+        $program->update([
+            'step_id'=>$next_step->id
+        ]);
+        return redirect()->back();
+    }
+
+    public function setup_sched(Request $request){
+        
+        $program=Program::findOrFail($request->program_id);
+
+        ProgramSetupSchedule::updateOrCreate([
+            'program_id'=>$request->program_id
+        ],[
+            'date'=>Carbon::parse($request->date),
+        ]);
+
+        if($program->step_id==Step::where('step',5)->first()->id){
+            $program->update([
+                'step_id'=>Step::where('step',6)->first()->id
+            ]);
+        }
+
+        return redirect()->back();
+    }
+
+    public function setup_sched_reminder(Request $request){
+        $program = Program::findOrFail($request->program_id);
+        $testers = $program->program_testers;
+        $programmers = $program->program_programmers;
+        $coordinators = $program->project->project_coordinators;
+
+        $emails = array_map(function($user) {
+            return $user['email'];
+        }, $coordinators->toArray());
+
+        $tester_emails = array_map(function($user) {
+            return $user['email'];
+        }, $testers->toArray());
+
+        $programmer_emails = array_map(function($user) {
+            return $user['email'];
+        }, $programmers->toArray());
+
+        $cc_emails = array_merge($tester_emails,$programmer_emails);
+
+        Mail::to($emails)
+                ->cc($cc_emails)
+                ->send(new SetUpSchedule(
+                    env('MAIL_FROM_NAME','DDC Software'),
+                    env('MAIL_FROM_ADDRESS','donotreply@ddc-software.com'),
+                    $request->subject,
+                    $request->body
+                )
+            );
+
+        if($program->step_id==Step::where('step',8)->first()->id){
+            $program->update([
+                'step_id'=>Step::where('step',9)->first()->id
+            ]);
+        }
+        return redirect()->back();
+    }
+
+    public function next_step(Request $request,$id){
+        $program = Program::findOrFail($id);
+        $program->update([
+            'step_id'=>$request->step_id
+        ]);
+        return redirect()->back();
+    }
+
+    public function failed_test(Request $request){
+        $program = Program::findOrFail($request->program_id);
+        $testers = $program->program_testers;
+        $programmers = $program->program_programmers;
+
+        $tester_emails = array_map(function($user) {
+            return $user['email'];
+        }, $testers->toArray());
+
+        $programmer_emails = array_map(function($user) {
+            return $user['email'];
+        }, $programmers->toArray());
+
+        $emails = array_merge($tester_emails,$programmer_emails);
+
+        Mail::to($emails)
+                ->send(new FailedTest(
+                    env('MAIL_FROM_NAME','DDC Software'),
+                    env('MAIL_FROM_ADDRESS','donotreply@ddc-software.com'),
+                    $request->subject,
+                    $request->body
+                )
+            );
+
+        if($program->step_id==Step::where('step',10)->first()->id){
+            $program->update([
+                'step_id'=>Step::where('step',11)->first()->id
+            ]);
+        }
+        return redirect()->back();
+    }
+
+    public function completed_test(Request $request){
+        $program = Program::findOrFail($request->program_id);
+        $testers = $program->program_testers;
+        $programmers = $program->program_programmers;
+
+        $tester_emails = array_map(function($user) {
+            return $user['email'];
+        }, $testers->toArray());
+
+        $programmer_emails = array_map(function($user) {
+            return $user['email'];
+        }, $programmers->toArray());
+
+        $emails = array_merge($tester_emails,$programmer_emails);
+
+        Mail::to($emails)
+                ->send(new FailedTest(
+                    env('MAIL_FROM_NAME','DDC Software'),
+                    env('MAIL_FROM_ADDRESS','donotreply@ddc-software.com'),
+                    $request->subject,
+                    $request->body
+                )
+            );
+
+        $program->update([
+            'step_id'=>Step::where('step',12)->first()->id
+        ]);
+        return redirect()->back();
+    }
+
+    public function test_cases_passed(Request $request){
+        $program = Program::findOrFail($request->program_id);
+        
+
+        Mail::to('sheryl@datacapture.com.ph')
+                ->send(new FailedTest(
+                    env('MAIL_FROM_NAME','DDC Software'),
+                    env('MAIL_FROM_ADDRESS','donotreply@ddc-software.com'),
+                    $request->subject,
+                    $request->body
+                )
+            );
+
+        $program->update([
+            'step_id'=>Step::where('step',13)->first()->id
         ]);
         return redirect()->back();
     }

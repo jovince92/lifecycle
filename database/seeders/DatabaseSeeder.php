@@ -61,7 +61,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'step'=>11,
-                'name'=>'Send an email to inform of failed test'
+                'name'=>'Send an email to inform of completed test'
             ],
             [
                 'step'=>12,
@@ -70,14 +70,6 @@ class DatabaseSeeder extends Seeder
             [
                 'step'=>13,
                 'name'=>'Send an email to Software manager informing all test cases are passed'
-            ],
-            [
-                'step'=>14,
-                'name'=>'Create user acceptance Testing'
-            ],
-            [
-                'step'=>15,
-                'name'=>'Create user acceptance Testing'
             ],
         ];
 

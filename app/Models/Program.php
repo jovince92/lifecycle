@@ -33,4 +33,8 @@ class Program extends Model
     public function techinical_requirement_document(){
         return $this->hasOne(TeqReqDoc::class);
     }
+
+    public function program_setup_schedule(){
+        return $this->hasOne(ProgramSetupSchedule::class);
+    }
 }
