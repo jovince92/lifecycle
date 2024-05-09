@@ -8,7 +8,7 @@ import {FC, useEffect, useState} from 'react';
 import { ToItem } from './TechnicalRequirementsDocument/TRDNotificationModal';
 import { format } from 'date-fns';
 import TipTap from '@/Components/TipTap';
-import { cn } from '@/lib/utils';
+import { cn, ddcImgUrl } from '@/lib/utils';
 import { Button } from '@/Components/ui/button';
 import { Ban, Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
@@ -55,8 +55,8 @@ const SetupScheduleEmail:FC<Props> = ({program,isOpen,onClose}) => {
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className='max-w-[90vw] max-h-[95vh] h-full flex flex-col space-x-1.5'>
-                <div className='w-full flex flex-col space-y-1.5'>
+            <DialogContent className='max-w-[90vw] max-h-[95vh] h-full flex flex-col space-x-1.5 overflow-y-hidden'>
+                <div className='w-full flex flex-col space-y-1.5 overflow-y-auto'>
                     <p className='font-semibold text-lg'>Set Up Schedule</p>
                     <Separator />
                     <div className='flex space-x-1.5 items-center justify-end'>
@@ -84,7 +84,7 @@ const SetupScheduleEmail:FC<Props> = ({program,isOpen,onClose}) => {
                         <TipTap editor={editor!} content={emailMsg} />
                     </div>
                     <div className='flex items-center justify-end space-x-1.5'>
-                        <Button disabled={sending} variant='secondary' size='sm' className='text-base flex items-center space-x-1.5'>
+                        <Button onClick={onClose} disabled={sending} variant='secondary' size='sm' className='text-base flex items-center space-x-1.5'>
                             <Ban className='w-4 h-4' />
                             <span>Cancel</span>
                         </Button>
@@ -107,7 +107,20 @@ const generateEmail = (program:Program):string=>{
 
 
     return `
-
+    <table>
+        <tbody>
+            <tr>
+                <th rowspan="2" align='right'>
+                    <img alt='DDC'  src='${ddcImgUrl}' />
+                </th>
+                <td>
+                    <p>Information Security Management System</p>
+                    <p>SOFTWARE DEVELOPMENT LIFECYCLE</p>
+                </td>
+                
+            </tr>
+        </tbody>
+    </table>
     
     Hi Set Up Commitee,
     <br>

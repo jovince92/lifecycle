@@ -8,7 +8,7 @@ import {FC, useEffect, useState} from 'react';
 import { ToItem } from '../TechnicalRequirementsDocument/TRDNotificationModal';
 import useEditorConfig from '@/Hooks/useEditorConfig';
 import TipTap from '@/Components/TipTap';
-import { cn } from '@/lib/utils';
+import { cn, ddcImgUrl } from '@/lib/utils';
 import { Ban, Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { Inertia } from '@inertiajs/inertia';
@@ -89,7 +89,7 @@ const NotifySetUpCommiteeModal:FC<Props> = ({program,isOpen,onClose}) => {
                         <TipTap editor={editor!} content={emailMsg} />
                     </div>
                     <div className='flex items-center justify-end space-x-1.5'>
-                        <Button disabled={sending} variant='secondary' size='sm' className='text-base flex items-center space-x-1.5'>
+                        <Button onClick={onClose} disabled={sending} variant='secondary' size='sm' className='text-base flex items-center space-x-1.5'>
                             <Ban className='w-4 h-4' />
                             <span>Cancel</span>
                         </Button>
@@ -119,7 +119,20 @@ const generateEmail = (program:Program):string=>{
     if(!program) return "";
 
     return `
-
+    <table>
+        <tbody>
+            <tr>
+                <th rowspan="2" align='right'>
+                    <img alt='DDC'  src='${ddcImgUrl}' />
+                </th>
+                <td>
+                    <p>Information Security Management System</p>
+                    <p>SOFTWARE DEVELOPMENT LIFECYCLE</p>
+                </td>
+                
+            </tr>
+        </tbody>
+    </table>
     
     Hi Set Up Committee,
     <br>

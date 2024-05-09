@@ -6,6 +6,7 @@ use App\Http\Controllers\BusinessRequirementController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TechnicalRequirementController;
+use App\Http\Controllers\UserAcceptanceController;
 use App\Models\User;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Http;
@@ -75,6 +76,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/item/store', [TechnicalRequirementController::class,'item_store'])->name('item.store');
         Route::post('/item/update/{id}', [TechnicalRequirementController::class,'item_update'])->name('item.update');
         Route::post('/item/destroy/{id}', [TechnicalRequirementController::class,'item_destroy'])->name('item.destroy');
+    });
+
+    Route::prefix('user_acceptance')->name('user_acceptance.')->group(function(){
+        Route::post('/store', [UserAcceptanceController::class,'store'])->name('store');
+        Route::post('/update/{id}', [UserAcceptanceController::class,'update'])->name('update');
+        Route::post('/destroy/{id}', [UserAcceptanceController::class,'destroy'])->name('destroy');
+        Route::post('/failed_test', [UserAcceptanceController::class,'failed_test'])->name('failed_test');
     });
     
     Route::prefix('hrms')->name('hrms.')->group(function () {

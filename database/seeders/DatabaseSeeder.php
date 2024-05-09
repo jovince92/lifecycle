@@ -71,6 +71,21 @@ class DatabaseSeeder extends Seeder
                 'step'=>13,
                 'name'=>'Send an email to Software manager informing all test cases are passed'
             ],
+            
+            [
+                'step'=>14,
+                'name'=>'User Acceptance Testing'
+            ],
+            
+            [
+                'step'=>15,
+                'name'=>'n/a - Program Done'
+            ],
+            
+            [
+                'step'=>16,
+                'name'=>'Complete Requested Changes'
+            ],
         ];
 
         Step::insert($steps);

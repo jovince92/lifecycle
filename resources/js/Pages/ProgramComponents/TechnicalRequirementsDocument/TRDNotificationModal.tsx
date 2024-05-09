@@ -6,7 +6,7 @@ import { Label } from '@/Components/ui/label';
 import { Popover, PopoverTrigger } from '@/Components/ui/popover';
 import { Separator } from '@/Components/ui/separator';
 import useEditorConfig from '@/Hooks/useEditorConfig';
-import { cn } from '@/lib/utils';
+import { cn, ddcImgUrl } from '@/lib/utils';
 import { Program, User } from '@/types';
 import { Inertia } from '@inertiajs/inertia';
 import { Ban, Loader2, MailPlus, Send, XCircle } from 'lucide-react';
@@ -85,7 +85,7 @@ const TRDNotificationModal:FC<Props> = ({isOpen,onClose,program}) => {
                     <TipTap editor={editor!} content={emailMsg} />
                 </div>
                 <div className='flex items-center justify-end space-x-1.5'>
-                    <Button disabled={sending} variant='secondary' size='sm' className='text-base flex items-center space-x-1.5'>
+                    <Button onClick={onClose} disabled={sending} variant='secondary' size='sm' className='text-base flex items-center space-x-1.5'>
                         <Ban className='w-4 h-4' />
                         <span>Cancel</span>
                     </Button>
@@ -126,6 +126,7 @@ export const ToItem:FC<ToItemProps> = ({onRemove,to}) =>{
 
 const generateEmail = (program:Program):string=>{
     if(!program) return "";
+    const url = route('programs.show',{id:program.id});
     const {business_requirement_document} = program;
     const {items} = business_requirement_document;
     let itemContents = items.reduce((prev,item)=>prev+`
@@ -150,7 +151,20 @@ const generateEmail = (program:Program):string=>{
     // `;
 
     return `
-
+    <table>
+        <tbody>
+            <tr>
+                <th rowspan="2" align='right'>
+                    <img alt='DDC'  src='${ddcImgUrl}' />
+                </th>
+                <td>
+                    <p>Information Security Management System</p>
+                    <p>SOFTWARE DEVELOPMENT LIFECYCLE</p>
+                </td>
+                
+            </tr>
+        </tbody>
+    </table>
     
     Hi Testers,
     <br>
@@ -162,7 +176,7 @@ const generateEmail = (program:Program):string=>{
     
     <table>
         <thead>
-            <tr align='center'>
+            <tr>
                 <th>BR#</th>
                 <th>Module/Field</th>
                 <th>Applicable Roles</th>
@@ -175,6 +189,11 @@ const generateEmail = (program:Program):string=>{
     </table>
     <br><br>
     Please create a Technical Requirement Document based on the Business Requirements above.
+    <br />
+    Please click the link below to view the Business Requirements Document:
+    <br>
+    <br>
+    <a href='${url}'>${program.name} Business Requirements Document</a>
     <br><br>
     Thanks.
     <br><b></b><br>

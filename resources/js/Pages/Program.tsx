@@ -7,7 +7,7 @@ import ProgramContent from './ProgramComponents/ProgramContent';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@/Components/ui/breadcrumb';
 import Hint from '@/Components/Hint';
 import { Button } from '@/Components/ui/button';
-import { ListTodo } from 'lucide-react';
+import { HistoryIcon, ListTodo } from 'lucide-react';
 import CheckList from './ProgramComponents/CheckList';
 import TRDNotificationModal from './ProgramComponents/TechnicalRequirementsDocument/TRDNotificationModal';
 import { useLocalStorage } from 'usehooks-ts';
@@ -18,6 +18,7 @@ import TestPlanEmail from './ProgramComponents/TestPlanEmail';
 import FailedTestEmail from './ProgramComponents/FailedTestEmail';
 import CompletedTestEmail from './ProgramComponents/CompletedTestEmail';
 import TestCasesPassedEmail from './ProgramComponents/TestCasesPassedEmail';
+import TestingHistory from './ProgramComponents/TestingHistory';
 
 const Cycles:LifeCycle[] = [
     'Business Requirements Document' ,
@@ -29,7 +30,9 @@ const Cycles:LifeCycle[] = [
     'Send an email to inform of failed test',
     'Send an email to inform of completed test',
     'Requirement Traceability Matrix',
-    'Send an email to Software manager informing all test cases are passed'
+    'Send an email to Software manager informing all test cases are passed',
+    'User Acceptance Testing',
+    'Change Management Request'
 ];
 
 interface Props {
@@ -49,35 +52,39 @@ const Program:FC<Props> = ({program}) => {
     
     const {onOpen} = useProgramModal();
     const handleSelect = (e:LifeCycle) =>{
-        if(e==='Business Requirements Document'){
-            setCurrentLifeCycle(e);
-        }
-        if(e==='Technical Requirements Document'){
-            setCurrentLifeCycle(e);
-        }
-        if(e==='Setup Schedule') {
-            setShowSetupSchedule(true);
-        }
-        if(e==='Send an email of the schedule'){
-            setShowSetupScheduleEmail(true);
-        }
-        if(e==='Test Plan'){
-            onOpen(program.project_id,program);
-        }
-        if(e==='Send an email of the Test Plan'){
-            setShowTestPlanEmail(true);
-        }
-        if(e==='Send an email to inform of failed test'){
-            setShowFailedTestEmail(true);
-        }
-        if(e==='Send an email to inform of completed test'){
-            setShowCompletedTestEmail(true);
-        }
-        if(e==='Requirement Traceability Matrix'){
-            setCurrentLifeCycle(e);
-        }
-        if(e==='Send an email to Software manager informing all test cases are passed'){
-            setShowSoftwareManagerEmail(true);
+        switch(e){
+            case 'Business Requirements Document':
+            case 'Technical Requirements Document':
+            case 'Requirement Traceability Matrix':
+                setCurrentLifeCycle(e);
+                break;
+            case 'Setup Schedule':
+                setShowSetupSchedule(true);
+                break;
+            case 'Send an email of the schedule':
+                setShowSetupScheduleEmail(true);
+                break;
+            case 'Test Plan':
+                onOpen(program.project_id,program);
+                break;
+            case 'Send an email of the Test Plan':
+                setShowTestPlanEmail(true);
+                break;
+            case 'Send an email to inform of failed test':
+                setShowFailedTestEmail(true);
+                break;
+            case 'Send an email to inform of completed test':
+                setShowCompletedTestEmail(true);
+                break;
+            case 'Send an email to Software manager informing all test cases are passed':
+                setShowSoftwareManagerEmail(true);
+                break;
+            case 'User Acceptance Testing':
+                setCurrentLifeCycle(e);
+                break;
+            case 'Change Management Request':
+                setCurrentLifeCycle(e);
+                break;
         }
         
     }
@@ -126,7 +133,10 @@ const Program:FC<Props> = ({program}) => {
                                 </Select>
                             </BreadcrumbList>
                         </Breadcrumb>
-                        <CheckList program={program} />                        
+                        <div className='flex flex-row items-center gap-x-2'>
+                            <CheckList program={program} />
+                            <TestingHistory program={program} />   
+                        </div>                    
                     </div>
                     <div className='flex-1 overflow-y-hidden'>
                         <ProgramContent program={program} cycle={currentLifeCycle} />
@@ -136,7 +146,7 @@ const Program:FC<Props> = ({program}) => {
             <SetupSchedule program={program} isOpen={showSetupSchedule} onClose={()=>setShowSetupSchedule(false)} />
             {!!program.program_setup_schedule &&<SetupScheduleEmail program={program} isOpen={showSetupScheduleEmail} onClose={()=>setShowSetupScheduleEmail(false)} />}
             <TestPlanEmail program={program} isOpen={showTestPlanEmail} onClose={()=>setShowTestPlanEmail(false)} />
-            <FailedTestEmail program={program} isOpen={showFailedTestEmail} onClose={()=>setShowFailedTestEmail(false)} />
+            {!!program.techinical_requirement_document&&<FailedTestEmail program={program} isOpen={showFailedTestEmail} onClose={()=>setShowFailedTestEmail(false)} />}
             <CompletedTestEmail program={program} isOpen={showCompletedTestEmail} onClose={()=>setShowCompletedTestEmail(false)} />
             <TestCasesPassedEmail program={program} isOpen={showSoftwareManagerEmail} onClose={()=>setShowSoftwareManagerEmail(false)} />
         </>

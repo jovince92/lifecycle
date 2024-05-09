@@ -71,6 +71,8 @@ export interface Program extends TimeStamps{
     project: Project;
     step_id:number;
     step:Step;
+    change_requests:ChangeManagementRequest[];
+
 
     program_programmers:User[];
     program_testers:User[];
@@ -78,6 +80,8 @@ export interface Program extends TimeStamps{
     business_requirement_document:BusinessRequirementsDocument;
     techinical_requirement_document:TechnicalRequirementsDocument;
     program_setup_schedule:ProgramSetupSchedule;
+
+    user_acceptances:UserAcceptance[]
 } 
 
 
@@ -127,6 +131,7 @@ export interface TechnicalRequirementsDocument extends TimeStamps{
     output_format:string;
     program:Program;
     items:TechnicalRequirementsDocumentItem[]; 
+    histories:TrdHistory[];
 }
 
 export interface TechnicalRequirementsDocumentItem {
@@ -145,6 +150,65 @@ export interface ProgramSetupSchedule extends TimeStamps{
     date:string;
 }
 
+export interface TrdHistory extends TimeStamps{
+    id:number;
+    teq_req_doc_id:number;
+    teq_req_doc_item_id:number;
+    user_id:number;
+    test_case_status:'ongoing'|'success'|'failed';
+
+    user:User;
+    teq_req_doc:TechnicalRequirementsDocument;
+    teq_req_doc_item?:TechnicalRequirementsDocumentItem;
+}
+
+export interface UserAcceptance extends TimeStamps{
+    id:number;
+    program_id:number;
+    user_id:number;
+    responsible: UAResponsible;
+    items:UserAcceptanceItem[];
+    program:Program;
+    remarks:string;
+    user:User;
+}
+
+export interface UserAcceptanceItem extends TimeStamps{
+    id:number;
+    user_acceptance_id:number;
+    description:string;
+    status:0|1;
+    is_additional:1|0;
+}
+
+export interface ChangeManagementRequest extends TimeStamps{
+    id:number;
+    program_id:number;
+    user_id:number;
+    title:string;
+    description:string;
+    client_request:0|1;
+    incident_or_problem_resolution:0|1;
+    enhancement:0|1;
+    business_requirement:0|1;
+    procedural:0|1;
+    others:0|1;
+    others_description?:string;
+    schedule?:string;
+    hardware?:string;
+    software?:string;
+    manpower?:string;
+    location?:string;
+    office_equipment?:string;
+    other?:string;
+    is_done:0|1;
+    program:Program;
+    user:User;
+
+}
+
+export type UAResponsible = 'it'|'pc'|'prod';
+
 
 export type LifeCycle =
     'Business Requirements Document' |
@@ -156,5 +220,6 @@ export type LifeCycle =
     'Send an email of the Test Plan'|
     'Send an email to inform of failed test'|
     'Send an email to inform of completed test'|
-    'Send an email to Software manager informing all test cases are passed'
-;
+    'Send an email to Software manager informing all test cases are passed'|
+    'User Acceptance Testing'|
+    'Change Management Request';

@@ -5,12 +5,16 @@ import {FC} from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { ChevronsLeftRight } from 'lucide-react';
+import { Switch } from '../ui/switch';
+import { Label } from '../ui/label';
+import { useTheme } from '@/Providers/ThemeProvider';
 
 
 
 const UserItem:FC = () => {
     
     const {user} = usePage<Page<PageProps>>().props.auth;  
+    const { setTheme,theme } = useTheme();
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -27,7 +31,7 @@ const UserItem:FC = () => {
                     <ChevronsLeftRight className='rotate-90 ml-2 text-muted-foreground h-4 w-4' />
                 </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80" align="start" alignOffset={11} forceMount>
+            <DropdownMenuContent className="w-80 z-[500]" align="start" alignOffset={11} forceMount>
                 <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{user.first_name}</p>
@@ -36,6 +40,11 @@ const UserItem:FC = () => {
                         </p>
                     </div>
                 </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                    <DropdownMenuItem className='flex items-center space-x-2'>
+                        <Switch id="dark-mode" checked={theme==='dark'} onCheckedChange={()=>setTheme(theme==='dark'?'light':'dark')} />
+                        <Label htmlFor="dark-mode">Toggle Dark Mode</Label>
+                    </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={()=>Inertia.post(route('logout'))}>
                     Log out

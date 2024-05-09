@@ -43,7 +43,7 @@ const BusinessRequirementsDocument:FC<Props> = ({program}) => {
                             </Button>
                         </div>
                     ):(
-                        <div className='h-full max-w-[40rem] flex flex-col gap-y-0.5'>
+                        <div className='h-full w-full flex flex-col gap-y-0.5 px-2.5'>
                             <div className='h-auto flex items-center justify-between gap-x-2'>
                                 <div className='space-y-1 text-xs'>
                                     <p>Created By: {program.business_requirement_document.user.first_name} {program.business_requirement_document.user.last_name}</p>

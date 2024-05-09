@@ -9,7 +9,7 @@ class Program extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $with = ['program_programmers','program_testers','step'];
+    protected $with = ['program_programmers','program_testers','step','user_acceptances'];
     public function project(){
         return $this->belongsTo(Project::class);
     }
@@ -36,5 +36,13 @@ class Program extends Model
 
     public function program_setup_schedule(){
         return $this->hasOne(ProgramSetupSchedule::class);
+    }
+
+    public function user_acceptances(){
+        return $this->hasMany(UserAcceptance::class);
+    }
+
+    public function change_requests(){
+        return $this->hasMany(ChangeRequest::class);
     }
 }

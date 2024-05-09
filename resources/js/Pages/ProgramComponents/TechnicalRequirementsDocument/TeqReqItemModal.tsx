@@ -29,6 +29,7 @@ const TeqReqItemModal:FC<Props> = ({isOpen,onClose,teq_req_id,teqReqItem}) => {
     const onSubmit:FormEventHandler<HTMLFormElement> = e =>{
         e.preventDefault();
         const href = !!teqReqItem?route('tech_requirement.item.update',{id:teqReqItem.id}):route('tech_requirement.item.store');
+        if(!data.test_case_status) return toast.error('Test Status is required');
         post(href,{
             onSuccess:()=>onClose(),
             onError:e=>{

@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 import {FC, useEffect, useState} from 'react';
 import { toast } from 'sonner';
 import { ToItem } from './TechnicalRequirementsDocument/TRDNotificationModal';
-import { cn } from '@/lib/utils';
+import { cn, ddcImgUrl } from '@/lib/utils';
 import TipTap from '@/Components/TipTap';
 import { Button } from '@/Components/ui/button';
 import { Ban, Loader2, Send } from 'lucide-react';
@@ -87,7 +87,7 @@ const TestPlanEmail:FC<Props> = ({program,isOpen,onClose}) => {
                         <TipTap editor={editor!} content={emailMsg} />
                     </div>
                     <div className='flex items-center justify-end space-x-1.5'>
-                        <Button disabled={sending} variant='secondary' size='sm' className='text-base flex items-center space-x-1.5'>
+                        <Button onClick={onClose} disabled={sending} variant='secondary' size='sm' className='text-base flex items-center space-x-1.5'>
                             <Ban className='w-4 h-4' />
                             <span>Cancel</span>
                         </Button>
@@ -120,7 +120,20 @@ const generateEmail = (program:Program):string=>{
     const programmers = program.program_programmers.reduce((prev,programmer)=>prev+`${programmer.first_name} ${programmer.last_name} <br>`,"");
     const testers = program.program_testers.reduce((prev,tester)=>prev+`${tester.first_name} ${tester.last_name} <br>`,"");
     return `
-
+    <table>
+        <tbody>
+            <tr>
+                <th rowspan="2" align='right'>
+                    <img alt='DDC'  src='${ddcImgUrl}' />
+                </th>
+                <td>
+                    <p>Information Security Management System</p>
+                    <p>SOFTWARE DEVELOPMENT LIFECYCLE</p>
+                </td>
+                
+            </tr>
+        </tbody>
+    </table>
     
     Hi Set Up Commitee,
     <br>

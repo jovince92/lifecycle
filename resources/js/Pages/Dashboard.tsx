@@ -18,7 +18,7 @@ const Dashboard:FC<Props> = () => {
         <>
             <Head title='Software Lifecycle' />
             <Layout  >
-                <div className='h-full flex flex-col items-center justify-center space-y-3.5'>
+                <div className='h-full flex flex-col items-center justify-center space-y-3.5 pt-32'>
                     <img alt='Empty' height={300} width={300} className='dark:invert' src={`${route('public_route')}/images/empty.png`} />
                     <h2 className='text-lg font-medium'>Welcome to Software Lifecycle</h2>
                     <Button onClick={()=>onOpen()}>

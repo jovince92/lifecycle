@@ -6,7 +6,10 @@ use App\Models\Program;
 use App\Models\Step;
 use App\Models\TeqReqDoc;
 use App\Models\TeqReqDocItem;
+use App\Models\TrdHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class TechnicalRequirementController extends Controller
 {
@@ -38,18 +41,27 @@ class TechnicalRequirementController extends Controller
      */
     public function store(Request $request)
     {
-        $program = Program::findOrFail($request->program_id);
-        TeqReqDoc::create([
-            'program_id' => $request->program_id,
-            'accuracy' => $request->accuracy,
-            'output_format' => $request->output_format,
-        ]);
-        
-        if($program->step->id == Step::where('step','3')->first()->id){
-            $program->update([
-                'step_id' => Step::where('step','4')->first()->id
+        DB::transaction(function () use ($request) {
+            $program = Program::findOrFail($request->program_id);
+            $trd=TeqReqDoc::create([
+                'program_id' => $request->program_id,
+                'accuracy' => $request->accuracy,
+                'output_format' => $request->output_format,
             ]);
-        }
+            
+            if($program->step->id == Step::where('step','3')->first()->id){
+                $program->update([
+                    'step_id' => Step::where('step','4')->first()->id
+                ]);
+            }
+            TrdHistory::create([
+                'teq_req_doc_id' => $trd->id,
+                'teq_req_doc_item_id' => null,
+                'user_id' => Auth::id(),
+                'test_case_status' => 'TRD Created',
+            ]);
+        });
+        
         
         return redirect()->back();
     }
@@ -85,11 +97,20 @@ class TechnicalRequirementController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $trd = TeqReqDoc::findOrFail($id);
-        $trd->update([
-            'accuracy' => $request->accuracy,
-            'output_format' => $request->output_format,
-        ]);
+        DB::transaction(function () use ($request, $id) {
+            $trd = TeqReqDoc::findOrFail($id);
+            $trd->update([
+                'accuracy' => $request->accuracy,
+                'output_format' => $request->output_format,
+            ]);
+            TrdHistory::create([
+                'teq_req_doc_id' => $trd->id,
+                'teq_req_doc_item_id' => null,
+                'user_id' => Auth::id(),
+                'test_case_status' => 'Updated Accuracy/Output Format',
+            ]);
+        });
+        
         return redirect()->back();
     }
 
@@ -106,31 +127,51 @@ class TechnicalRequirementController extends Controller
 
     public function item_store(Request $request)
     {
-        $item = TeqReqDocItem::create([
-            'teq_req_doc_id' => $request->teq_req_doc_id,
-            'req_description' => $request->req_description,
-            //'test_case_id' => $request->test_case_id,
-            'test_case_description' => $request->test_case_description,
-            'test_case_remarks' => $request->test_case_remarks,
-            'test_case_status' => $request->test_case_status,
-        ]);
+        DB::transaction(function () use ($request) {            
+            $item = TeqReqDocItem::create([
+                'teq_req_doc_id' => $request->teq_req_doc_id,
+                'req_description' => $request->req_description,
+                //'test_case_id' => $request->test_case_id,
+                'test_case_description' => $request->test_case_description,
+                'test_case_remarks' => $request->test_case_remarks,
+                'test_case_status' => $request->test_case_status,
+            ]);
+    
+            $test_case_id = 'TRD_TC'.strval($item->id);
+            $item->update([
+                'test_case_id' => $test_case_id,
+            ]);
 
-        $test_case_id = 'TRD_TC'.strval($item->id);
-        $item->update([
-            'test_case_id' => $test_case_id,
-        ]);
+            TrdHistory::create([
+                'teq_req_doc_id' => $request->teq_req_doc_id,
+                'teq_req_doc_item_id' => $item->id,
+                'user_id' => Auth::id(),
+                'test_case_status' => $request->test_case_status,
+            ]);
+        });
+        
         return redirect()->back();
     }
 
     public function item_update(Request $request, $id)
     {
-        $item = TeqReqDocItem::findOrFail($id);
-        $item->update([
-            'req_description' => $request->req_description,
-            'test_case_description' => $request->test_case_description,
-            'test_case_remarks' => $request->test_case_remarks,
-            'test_case_status' => $request->test_case_status,
-        ]);
+        DB::transaction(function () use ($request, $id) {
+            $item = TeqReqDocItem::findOrFail($id);
+            $item->update([
+                'req_description' => $request->req_description,
+                'test_case_description' => $request->test_case_description,
+                'test_case_remarks' => $request->test_case_remarks,
+                'test_case_status' => $request->test_case_status,
+            ]);
+            
+            TrdHistory::create([
+                'teq_req_doc_id' => $item->teq_req_doc_id,
+                'teq_req_doc_item_id' => $item->id,
+                'user_id' => Auth::id(),
+                'test_case_status' => $request->test_case_status,
+            ]);
+        });
+        
         return redirect()->back();
     }
 

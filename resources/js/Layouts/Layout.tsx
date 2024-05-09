@@ -6,9 +6,6 @@ import { Button } from '@/Components/ui/button';
 import { ModalProvider } from '@/Providers/ModalProvider';
 import { cn } from '@/lib/utils';
 import { PageProps, Project } from '@/types';
-import { Page } from '@inertiajs/inertia';
-import { usePage } from '@inertiajs/inertia-react';
-import { AlertTriangle } from 'lucide-react';
 import { FC, ReactNode, useMemo, useState } from 'react';
 
 interface Props {
@@ -24,7 +21,7 @@ const Layout:FC<Props> = ({children,selected_project}) => {
             <SearchCommand />
             <div className='h-full flex '>
                 <Navigation selected_project={selected_project} />
-                <main className={cn('flex-1 h-full overflow-y-auto ',!!selected_project&&'pt-14')}>
+                <main className={cn('flex-1 h-full overflow-y-auto ',!!selected_project&&'pt-[7.5rem]')}>
                     {children}
                 </main>
             </div>

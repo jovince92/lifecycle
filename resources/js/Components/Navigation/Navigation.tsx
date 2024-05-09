@@ -109,7 +109,7 @@ const Navigation:FC<Props> = ({selected_project}) => {
                 <div className='w-full h-auto'>
                     <UserItem />
                     <Item onClick={onOpen} label='Search' Icon={Search} isSearch />
-                    <Item onClick={()=>setTheme(theme==='dark'?'light':'dark')} label='Toggle Dark Mode' Icon={theme==='dark'?Lightbulb:LightbulbOff}  />
+                    {/* <Item onClick={()=>setTheme(theme==='dark'?'light':'dark')} label='Toggle Dark Mode' Icon={theme==='dark'?Lightbulb:LightbulbOff}  /> */}
                     <Item onClick={()=>OpenProjectModal()} label='New Project' Icon={PlusCircle} />
                 </div>
                 

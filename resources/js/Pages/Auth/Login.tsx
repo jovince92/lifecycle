@@ -20,10 +20,13 @@ const Login:FC= () => {
         <>
             <Head title="Login" />
             <div className='h-full flex items-center justify-center'>
-                <Card className="w-full md:w-96">
-                    <CardHeader>
-                        <CardTitle>Software Lifecylcle</CardTitle>
-                        <CardDescription>Enter your HRMS Credentials to continue.</CardDescription>
+                <Card className="w-full md:w-[32rem] shadow-lg shadow-muted-foreground">
+                    <CardHeader className='flex flex-row items-center gap-x-2.5'>
+                        <img alt='DDC'   className='aspect-video h-[60px] ' src={`${route('public_route')}/images/ddc.png`} />
+                        <div className='flex flex-col gap-y-1'>
+                            <CardDescription>Information Security Management System</CardDescription>
+                            <CardTitle>Software Lifecylcle</CardTitle>
+                        </div>
                     </CardHeader>
                     <CardContent>                    
                         <form onSubmit={onSubmit} id='form' className="grid w-full items-center gap-4">
@@ -36,13 +39,14 @@ const Login:FC= () => {
                                 <Label htmlFor="password">Password</Label>
                                 <Input value={data.password} onChange={({target})=>setData('password',target.value)} disabled={processing} type='password' required autoComplete='off' id="password" placeholder="HRMS Password" />
                             </div>
+                            <Button disabled={processing} type='submit' className='ml-auto mt-2.5'>
+                                { processing && <Loader2 className='h-5 w-5 mr-2 animate-spin ' />}
+                                Continue
+                            </Button>
                         </form>                    
                     </CardContent>
-                    <CardFooter className="flex justify-end">
-                        <Button disabled={processing} type='submit' form='form'>
-                            { processing && <Loader2 className='h-5 w-5 mr-2 animate-spin' />}
-                            Continue
-                        </Button>
+                    <CardFooter className="flex justify-end">                        
+                        <p className='text-sm text-muted-foreground w-full text-center'>Enter your HRMS Credentials to continue.</p>
                     </CardFooter>
                 </Card>
             </div>
