@@ -1,17 +1,21 @@
 import { Button } from '@/Components/ui/button';
 import { Calendar } from '@/Components/ui/calendar';
 import { Checkbox } from '@/Components/ui/checkbox';
+import { Command, CommandGroup, CommandItem } from '@/Components/ui/command';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
 import { Textarea } from '@/Components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { Program } from '@/types';
+import { HrmsInfo, Program, User } from '@/types';
 import { useForm } from '@inertiajs/inertia-react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import {FC} from 'react';
+import { CalendarIcon, CheckIcon, ChevronsUpDown, Loader2 } from 'lucide-react';
+import {ChangeEventHandler, FC, useEffect, useState} from 'react';
+import { useDebounceValue } from 'usehooks-ts';
 
 interface Props {
     program:Program;
@@ -20,6 +24,23 @@ interface Props {
 }
 
 const NewCrModal:FC<Props> = ({program,open,onClose}) => {
+    
+    const [openUsers, setOpenUsers] = useState(false);
+    const [openCompletedBy, setOpenCompletedBy] = useState(false);
+    const [openNotedBy, setOpenNotedBy] = useState(false);
+    const [searchValue,setSearchValue] = useDebounceValue("", 500);
+    const [search,setSearch] = useState('');
+
+    const onSearch:ChangeEventHandler<HTMLInputElement> = ({target}) =>{
+        const {value} = target
+        setSearch(value);
+        setSearchValue(value);
+    }
+    const {isError,isLoading,data:employees,refetch,isFetched} = useQuery({
+        queryKey:['search_head',searchValue],  
+        queryFn: (search) => axios.get(route('hrms.search',{search:search.queryKey[1]})).then((res):HrmsInfo[]=>res.data),
+        enabled:false
+    });
     const {data,setData,processing,reset} = useForm({
         title:'',
         description:'',
@@ -37,6 +58,25 @@ const NewCrModal:FC<Props> = ({program,open,onClose}) => {
         location:'',
         office_equipment:'',
         other:'',
+        risk_impact_analysis_people:'',
+        risk_impact_analysis_affected_system:'',
+        risk_impact_analysis_schedule:'',
+        risk_impact_analysis_equipment:'',
+        risk_impact_analysis_overall_impact:'' as 'low'|'medium'|'high'|'',
+        rollback_plan:'',
+        review_result:0 as 1|2|3|0,
+        reason:'',
+        head:undefined as HrmsInfo|undefined,
+        review_date:'',
+        completion_details:'',
+        actual_start:'',
+        actual_end:'',
+        total_actual_duration:'',
+        remarks:'',
+        completed_by:undefined as HrmsInfo|undefined,
+        completed_by_date:'',
+        noted_by:undefined as HrmsInfo|undefined,
+        noted_by_date:'',
     });
 
     const setClientRequest = () =>{
@@ -66,8 +106,13 @@ const NewCrModal:FC<Props> = ({program,open,onClose}) => {
 
     const setResourceDescription = (val:string) => setData('others_description',val);
 
+    useEffect(()=>{
+        if(searchValue.length<3) return;
+        refetch();
+    },[searchValue]);
+
     return (
-        <Dialog open={open} onOpenChange={onClose}>
+        <Dialog modal open={open} onOpenChange={onClose}>
             <DialogContent className='max-w-[90vw] max-h-[95vh] h-full flex flex-col space-x-1.5'>
                 <DialogHeader className='h-auto'>
                     <DialogTitle>Change Management Request Form</DialogTitle>
@@ -208,6 +253,326 @@ const NewCrModal:FC<Props> = ({program,open,onClose}) => {
                                     <Input disabled={processing} value={data.other} onChange={(e)=>setData('other',e.target.value)} />
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div className='flex flex-col gap-y-2.5'>
+                        <Label>Risk Impact Analysis</Label>
+                        <div className='space-y-1'>
+                            <Label>People (Assess the manpower allocation- availability and skills requirements)</Label>
+                            <Input disabled={processing} value={data.risk_impact_analysis_people} onChange={(e)=>setData('risk_impact_analysis_people',e.target.value)} />
+                        </div>
+                        <div className='space-y-1'>
+                            <Label>Affected System (Impact to other systems i.e applications, servers, etc.)</Label>
+                            <Input disabled={processing} value={data.risk_impact_analysis_affected_system} onChange={(e)=>setData('risk_impact_analysis_affected_system',e.target.value)} />
+                        </div>
+                        <div className='space-y-1'>
+                            <Label>Schedule (feasibility of the schedule)</Label>
+                            <Input disabled={processing} value={data.risk_impact_analysis_schedule} onChange={(e)=>setData('risk_impact_analysis_schedule',e.target.value)} />
+                        </div>
+                        <div className='space-y-1'>
+                            <Label>Equipment (availability):</Label>
+                            <Input disabled={processing} value={data.risk_impact_analysis_equipment} onChange={(e)=>setData('risk_impact_analysis_equipment',e.target.value)} />
+                        </div>
+                        <div className='flex items-center justify-evenly'>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox onCheckedChange={()=>setData('risk_impact_analysis_overall_impact','low')} checked={data.risk_impact_analysis_overall_impact==='low'} disabled={processing}  id="low" />
+                                <label
+                                    htmlFor="low"
+                                    className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Low
+                                </label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox onCheckedChange={()=>setData('risk_impact_analysis_overall_impact','medium')} checked={data.risk_impact_analysis_overall_impact==='medium'} disabled={processing}  id="medium" />
+                                <label
+                                    htmlFor="medium"
+                                    className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Medium
+                                </label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox onCheckedChange={()=>setData('risk_impact_analysis_overall_impact','high')} checked={data.risk_impact_analysis_overall_impact==='high'} disabled={processing}  id="high" />
+                                <label
+                                    htmlFor="high"
+                                    className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    High
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='space-y-1'>
+                        <Label>Rollback Plan</Label>
+                        <Textarea rows={2} disabled={processing} value={data.rollback_plan} onChange={(e)=>setData('rollback_plan',e.target.value)} />
+                    </div>
+                    <div className='flex flex-col gap-y-2.5'>
+                        <Label>Review Result</Label>
+                        <div className='flex items-center justify-evenly'>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox onCheckedChange={()=>setData('review_result',1)} checked={data.review_result===1} disabled={processing}  id="approve" />
+                                <label
+                                    htmlFor="approve"
+                                    className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Approve
+                                </label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox onCheckedChange={()=>setData('review_result',2)} checked={data.review_result===2} disabled={processing}  id="reject" />
+                                <label
+                                    htmlFor="rejected"
+                                    className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Reject
+                                </label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox onCheckedChange={()=>setData('review_result',3)} checked={data.review_result===3} disabled={processing}  id="defer" />
+                                <label
+                                    htmlFor="defer"
+                                    className="text-sm font-light leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    Defer Until
+                                </label>
+                            </div>
+                        </div>
+                        <div className='space-y-1'>
+                            <Label>Reason/s:</Label>
+                            <Textarea rows={2} disabled={processing} value={data.reason} onChange={(e)=>setData('reason',e.target.value)} />
+                        </div>
+                        <div className='space-y-1'>
+                            <Label>Head/Supervisor</Label>
+                            <Popover open={openUsers} onOpenChange={setOpenUsers}>
+                                <PopoverTrigger asChild>
+                                    <Button disabled={processing} variant="outline" role="combobox" aria-expanded={openUsers} className="w-full justify-between" >
+                                        {!data.head?'Search User...' : `${data.head.first_name} ${data.head.last_name}`}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-full p-3.5 !z-[700]">
+                                    <Command className="w-full">
+                                        <Input placeholder="Search users..." className="w-full" onChange={onSearch} value={search} />
+                                        <CommandGroup className="w-full max-h-48 overflow-y-auto">
+                                            {(employees||[]).map((user) => (
+                                                <CommandItem className="w-full"
+                                                    key={user.idno}
+                                                    onSelect={() => {
+                                                        setData('head',user);
+                                                        setOpenUsers(false);
+                                                    }}>
+                                                    <span className="capitalize">{`${user.first_name} ${user.last_name}`}</span>
+                                                    <CheckIcon className={cn( "ml-auto h-4 w-4", data.head?.idno===user.idno ? "opacity-100" : "opacity-0")}/>
+                                                </CommandItem>
+                                            ))}
+                                            {isLoading&&searchValue.length>2&&<div className="w-full flex items-center gap-x-2"><Loader2 className="h-5 w-5 animate-spin" /><span>Loading Users...</span></div>}
+                                        </CommandGroup>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                        <div className='space-y-1'>
+                            <Label>Review Date</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !data.review_date && "text-muted-foreground"
+                                    )}
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {data.schedule ? format(new Date(data.review_date), "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={new Date(data.review_date)}
+                                    onSelect={e=>e&&setData('schedule',format(e,'yyyy-MM-dd'))}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </div>
+
+                    <div className='flex flex-col gap-y-2.5'>
+                        <Label>Implementation Report</Label>
+                        <div className='space-y-1'>
+                            <Label>Completion Details</Label>
+                            <Textarea rows={2} disabled={processing} value={data.completion_details} onChange={(e)=>setData('completion_details',e.target.value)} />
+                        </div>
+                        <div className='space-y-1'>
+                            <Label>Actual Start Date/Time</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !data.actual_start && "text-muted-foreground"
+                                    )}
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {data.actual_start ? format(new Date(data.actual_start), "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={new Date(data.actual_start)}
+                                    onSelect={e=>e&&setData('schedule',format(e,'yyyy-MM-dd'))}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                        <div className='space-y-1'>
+                            <Label>Actual End Date/Time</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !data.actual_end && "text-muted-foreground"
+                                    )}
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {data.actual_end ? format(new Date(data.actual_end), "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={new Date(data.actual_end)}
+                                    onSelect={e=>e&&setData('schedule',format(e,'yyyy-MM-dd'))}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </div>
+                    <div className='space-y-1'>
+                        <Label>Remarks</Label>
+                        <Textarea rows={2} disabled={processing} value={data.remarks} onChange={(e)=>setData('remarks',e.target.value)} />
+                    </div>
+                    <div className='flex items-center gap-x-2 '>
+                        <div className='space-y-1 w-1/2'>
+                            <Label>Completed By</Label>
+                            <Popover open={openCompletedBy} onOpenChange={setOpenCompletedBy}>
+                                <PopoverTrigger asChild>
+                                    <Button disabled={processing} variant="outline" role="combobox" aria-expanded={openCompletedBy} className="w-full justify-between" >
+                                        {!data.completed_by?'Search User...' : `${data.completed_by.first_name} ${data.completed_by.last_name}`}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-full p-3.5 !z-[700]">
+                                    <Command className="w-full">
+                                        <Input placeholder="Search users..." className="w-full" onChange={onSearch} value={search} />
+                                        <CommandGroup className="w-full max-h-48 overflow-y-auto">
+                                            {(employees||[]).map((user) => (
+                                                <CommandItem className="w-full"
+                                                    key={user.idno}
+                                                    onSelect={() => {
+                                                        setData('completed_by',user);
+                                                        setOpenCompletedBy(false);
+                                                    }}>
+                                                    <span className="capitalize">{`${user.first_name} ${user.last_name}`}</span>
+                                                    <CheckIcon className={cn( "ml-auto h-4 w-4", data.completed_by?.idno===user.idno ? "opacity-100" : "opacity-0")}/>
+                                                </CommandItem>
+                                            ))}
+                                            {isLoading&&searchValue.length>2&&<div className="w-full flex items-center gap-x-2"><Loader2 className="h-5 w-5 animate-spin" /><span>Loading Users...</span></div>}
+                                        </CommandGroup>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                        <div className='flex-1 space-y-1'>
+                            <Label>Completed By Date</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !data.completed_by_date && "text-muted-foreground"
+                                    )}
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {data.completed_by_date ? format(new Date(data.completed_by_date), "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={new Date(data.completed_by_date)}
+                                    onSelect={e=>e&&setData('completed_by_date',format(e,'yyyy-MM-dd'))}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+
+                    </div>
+                    <div className='flex items-center gap-x-2 '>
+                        <div className='space-y-1 w-1/2'>
+                            <Label>Noted By</Label>
+                            <Popover open={openNotedBy} onOpenChange={setOpenNotedBy}>
+                                <PopoverTrigger asChild>
+                                    <Button disabled={processing} variant="outline" role="combobox" aria-expanded={openNotedBy} className="w-full justify-between" >
+                                        {!data.noted_by?'Search User...' : `${data.noted_by.first_name} ${data.noted_by.last_name}`}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-full p-3.5 !z-[700]">
+                                    <Command className="w-full">
+                                        <Input placeholder="Search users..." className="w-full" onChange={onSearch} value={search} />
+                                        <CommandGroup className="w-full max-h-48 overflow-y-auto">
+                                            {(employees||[]).map((user) => (
+                                                <CommandItem className="w-full"
+                                                    key={user.idno}
+                                                    onSelect={() => {
+                                                        setData('noted_by',user);
+                                                        setOpenNotedBy(false);
+                                                    }}>
+                                                    <span className="capitalize">{`${user.first_name} ${user.last_name}`}</span>
+                                                    <CheckIcon className={cn( "ml-auto h-4 w-4", data.noted_by?.idno===user.idno ? "opacity-100" : "opacity-0")}/>
+                                                </CommandItem>
+                                            ))}
+                                            {isLoading&&searchValue.length>2&&<div className="w-full flex items-center gap-x-2"><Loader2 className="h-5 w-5 animate-spin" /><span>Loading Users...</span></div>}
+                                        </CommandGroup>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                        <div className='flex-1 space-y-1'>
+                            <Label>Noted By Date</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !data.noted_by_date && "text-muted-foreground"
+                                    )}
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {data.noted_by_date ? format(new Date(data.noted_by_date), "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={new Date(data.noted_by_date)}
+                                    onSelect={e=>e&&setData('noted_by_date',format(e,'yyyy-MM-dd'))}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
                         </div>
                     </div>
                 </form>
