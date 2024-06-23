@@ -77,7 +77,7 @@ const TechnicalRequirementsDocument:FC<Props> = ({program}) => {
                                             <DropdownMenuContent side='left'>
                                                 <DropdownMenuLabel>Options</DropdownMenuLabel>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem onClick={()=>setShowNewTechnicalRequirementsItem(true)}>
+                                                <DropdownMenuItem onClick={()=>toast.info('Please go to Business Requirement Documents and add an Item.')}>
                                                     <FilePlus className='h-4 w-4 mr-2' />
                                                     New TRD Item
                                                 </DropdownMenuItem>
@@ -204,7 +204,7 @@ const TRQItem:FC<TRQItemProps> = ({item}) =>{
                             <DropdownMenuLabel>Options</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={()=>setShowModal(true)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={onDelete}>Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={()=>toast.info('Please go to Business Requirement Documents, then delete it from there')}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </TableCell>

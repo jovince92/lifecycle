@@ -32,7 +32,7 @@ interface Props {
 const Item:FC<Props> = ({Icon,label,onClick,id,documentIcon,active,expanded,isSearch,level=0,onExpand,updateDate,onEdit,onNewProgram}) => {
     const {projects} = usePage<Page<PageProps>>().props;
 
-    const programs = useMemo(()=>projects.find(p=>p.id===id)?.programs||[],[projects]);
+    const programs = projects.find(p=>p.id===id)?.programs || [];
 
     const ChevronIcon = expanded? ChevronDown:ChevronRight;
     const {onOpen} = useArchiveProject();

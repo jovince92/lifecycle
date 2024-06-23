@@ -6,7 +6,12 @@ use App\Models\BusReqDoc;
 use App\Models\BusReqDocItem;
 use App\Models\Program;
 use App\Models\Step;
+use App\Models\TeqReqDoc;
+use App\Models\TeqReqDocItem;
+use App\Models\TrdHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class BusinessRequirementController extends Controller
 {
@@ -107,12 +112,36 @@ class BusinessRequirementController extends Controller
     }
 
     public function item_store(Request $request){
-        BusReqDocItem::create([
-            'bus_req_doc_id' => $request->bus_req_doc_id,
-            'module' => $request->module,
-            'applicable_roles' => $request->applicable_roles,
-            'description' => $request->description,
-        ]);
+        DB::transaction(function () use($request) {
+            $bus_req_item=BusReqDocItem::create([
+                'bus_req_doc_id' => $request->bus_req_doc_id,
+                'module' => $request->module,
+                'applicable_roles' => $request->applicable_roles,
+                'description' => $request->description,
+            ]);
+    
+            $program_id = BusReqDoc::where('id',$request->bus_req_doc_id)->firstOrFail()->program_id;
+            $teq_req_doc = TeqReqDoc::where('program_id',$program_id)->first();
+            if($teq_req_doc){
+                $item=TeqReqDocItem::create([
+                    'teq_req_doc_id' => $teq_req_doc->id,
+                    'bus_req_doc_item_id' => $bus_req_item->id,
+                ]);
+                $test_case_id = 'TRD_TC'.strval($item->id);
+                $item->update([
+                    'test_case_id' => $test_case_id,
+                ]);
+
+                TrdHistory::create([
+                    'teq_req_doc_id' => $item->teq_req_doc_id,
+                    'teq_req_doc_item_id' => $item->id,
+                    'user_id' => Auth::id(),
+                    'test_case_status' => 'Item Added to TRD',
+                ]);
+            }
+        });
+    
+
         return redirect()->back();
     }
 

@@ -60,6 +60,28 @@ class TechnicalRequirementController extends Controller
                 'user_id' => Auth::id(),
                 'test_case_status' => 'TRD Created',
             ]);
+
+            $business_requirement_document = $program->business_requirement_document;
+            foreach ($business_requirement_document->items as $item) {
+                $teq_req_doc_item = TeqReqDocItem::create([
+                    'bus_req_doc_item_id'=>$item->id,
+                    'teq_req_doc_id' => $trd->id,
+                    'test_case_description' => "",
+                    'test_case_remarks' => "",
+                    'test_case_status' => 'On-going',
+                ]);
+                $test_case_id = 'TRD_TC'.strval($teq_req_doc_item->id);
+                $teq_req_doc_item->update([
+                    'test_case_id' => $test_case_id,
+                ]);
+                TrdHistory::create([
+                    'teq_req_doc_id' => $trd->id,
+                    'teq_req_doc_item_id' => $teq_req_doc_item->id,
+                    'user_id' => Auth::id(),
+                    'test_case_status' => 'TRD Created',
+                ]);
+            }
+
         });
         
         
@@ -158,7 +180,6 @@ class TechnicalRequirementController extends Controller
         DB::transaction(function () use ($request, $id) {
             $item = TeqReqDocItem::findOrFail($id);
             $item->update([
-                'req_description' => $request->req_description,
                 'test_case_description' => $request->test_case_description,
                 'test_case_remarks' => $request->test_case_remarks,
                 'test_case_status' => $request->test_case_status,

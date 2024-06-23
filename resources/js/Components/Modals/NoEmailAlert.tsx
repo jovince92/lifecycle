@@ -1,7 +1,7 @@
 import { PageProps, User } from "@/types";
 import { Page } from "@inertiajs/inertia";
 import { useForm, usePage } from "@inertiajs/inertia-react";
-import { FC, useMemo, useState } from "react";
+import { FC,  useState } from "react";
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 import { AlertTriangle, Check, Loader2,  } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 const NoEmailAlert:FC = () =>{
     const {users_with_no_email} = usePage<Page<PageProps>>().props;
-    const showAlert = useMemo(()=>users_with_no_email.length > 0,[users_with_no_email]);
+    const showAlert = users_with_no_email.length > 0
     const [open,setOpen] = useState(showAlert);
     return (
         <AlertDialog open={open} onOpenChange={()=>setOpen(false)}>

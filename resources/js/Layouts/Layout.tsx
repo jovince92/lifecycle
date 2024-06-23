@@ -6,7 +6,7 @@ import { Button } from '@/Components/ui/button';
 import { ModalProvider } from '@/Providers/ModalProvider';
 import { cn } from '@/lib/utils';
 import { PageProps, Project } from '@/types';
-import { FC, ReactNode, useMemo, useState } from 'react';
+import { FC, ReactNode,  useState } from 'react';
 
 interface Props {
     children: ReactNode;

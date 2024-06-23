@@ -1,7 +1,7 @@
 import { Button } from '@/Components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
 import { Program, UserAcceptance } from '@/types';
-import {FC, useMemo, useState} from 'react';
+import {FC,  useState} from 'react';
 import NewUAModal from './UserAcceptance/NewUAModal';
 import { format, set } from 'date-fns';
 import UpdateUAModal from './UserAcceptance/UpdateUAModal';
@@ -83,20 +83,9 @@ const UAItem:FC<UAItemProps> = ({ua,onEdit,emailFailedTest,emailCompletedTest}) 
     // allTestPassed = all up items status = 1
     const allTestPassed = ua.items.every(item=>item.status === 1);
 
-    const responsibleLabel = useMemo(()=>{
 
-        switch(ua.responsible){
-            case 'it':
-                return 'IT Staff';
-            case 'pc':
-                return 'Project Coordinator';
-            case 'prod':
-                return 'Production';
-            default:
-                return 'N/A';
-        }
+    const responsibleLabel = ua.responsible === 'it' ? 'IT Staff' : ua.responsible === 'pc' ? 'Project Coordinator' : ua.responsible === 'prod' ? 'Production' : 'N/A';
 
-    },[ua.responsible]);
 
     return(
         <TableRow>

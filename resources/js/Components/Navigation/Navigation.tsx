@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { CheckIcon, ChevronLeftIcon, ChevronsUpDownIcon, Command, Lightbulb, LightbulbOff, MenuIcon, PlusCircle, RecycleIcon, Search } from 'lucide-react';
+import { CheckIcon, ChevronLeftIcon, ChevronsUpDownIcon, Command, DownloadCloud, Lightbulb, LightbulbOff, MenuIcon, PlusCircle, RecycleIcon, Search } from 'lucide-react';
 import {ElementRef, FC, MouseEventHandler, useEffect, useRef, useState} from 'react';
 import { useMediaQuery } from 'usehooks-ts';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -14,6 +14,8 @@ import NavBar from '../NavBar';
 import ProjectList from '../ProjectList';
 import Trashbox from '../Trashbox';
 import { ScrollArea } from '../ui/scroll-area';
+import { Inertia } from '@inertiajs/inertia';
+import { toast } from 'sonner';
 
 interface Props {
     selected_project?:Project;
@@ -93,7 +95,14 @@ const Navigation:FC<Props> = ({selected_project}) => {
         else resetWidth();
     },[isMobile]);
 
-    
+    const sync = () => {
+        const notif = toast.loading("Syncing departments from HRMS... Do not close this page.");
+        Inertia.get(route('hrms.sync_departments'),{},{
+            onSuccess:()=>toast.success('Departments synced successfully',{id:notif}),
+            onError:()=>toast.error('Failed to sync departments. Try again',{id:notif}),
+            preserveState:false               
+        })
+};
 
     return (
         <>
@@ -111,6 +120,7 @@ const Navigation:FC<Props> = ({selected_project}) => {
                     <Item onClick={onOpen} label='Search' Icon={Search} isSearch />
                     {/* <Item onClick={()=>setTheme(theme==='dark'?'light':'dark')} label='Toggle Dark Mode' Icon={theme==='dark'?Lightbulb:LightbulbOff}  /> */}
                     <Item onClick={()=>OpenProjectModal()} label='New Project' Icon={PlusCircle} />
+                    <Item onClick={sync} label='Sync Departments From HRMS' Icon={DownloadCloud} />
                 </div>
                 
                 <p className="text-center text-xl font-bold tracking-tight border-b border-b-muted-foreground/30 mt-3.5">Project List</p>

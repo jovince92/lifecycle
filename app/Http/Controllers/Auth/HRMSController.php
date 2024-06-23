@@ -78,7 +78,7 @@ class HRMSController extends Controller
         foreach($departments as $department){
             Department::firstOrCreate(['name'=>$department['myValue']]);
         }
-        return 'Synced Departments';
+        return redirect()->back();
     }
 
     public function search(string $search=""){

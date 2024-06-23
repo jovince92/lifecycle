@@ -17,7 +17,8 @@ interface Props {
     teqReqItem?:TechnicalRequirementsDocumentItem;
 }
 
-const TeqReqItemModal:FC<Props> = ({isOpen,onClose,teq_req_id,teqReqItem}) => {
+const TeqReqItemModal:FC<Props> = (props) => {
+    const {isOpen,onClose,teq_req_id,teqReqItem} = props;
     const {data,setData,processing,reset,post} = useForm({
         req_description:'',
         test_case_description:'',
@@ -25,6 +26,20 @@ const TeqReqItemModal:FC<Props> = ({isOpen,onClose,teq_req_id,teqReqItem}) => {
         test_case_status:'',
         teq_req_doc_id:teq_req_id
     });
+
+    
+    useEffect(()=>{
+        if(!isOpen) reset();
+        if(isOpen&&teqReqItem){
+            setData(val=>({
+                ...val,
+                req_description:teqReqItem.req_description,
+                test_case_description:teqReqItem.test_case_description,
+                test_case_remarks:teqReqItem.test_case_remarks,
+                test_case_status:teqReqItem.test_case_status            
+            }));
+        }
+    },[isOpen,teqReqItem]);
 
     const onSubmit:FormEventHandler<HTMLFormElement> = e =>{
         e.preventDefault();
@@ -39,18 +54,6 @@ const TeqReqItemModal:FC<Props> = ({isOpen,onClose,teq_req_id,teqReqItem}) => {
         });    
     }
 
-    useEffect(()=>{
-        if(!isOpen) reset();
-        if(isOpen&&teqReqItem){
-            setData(val=>({
-                ...val,
-                req_description:teqReqItem.req_description,
-                test_case_description:teqReqItem.test_case_description,
-                test_case_remarks:teqReqItem.test_case_remarks,
-                test_case_status:teqReqItem.test_case_status            
-            }));
-        }
-    },[isOpen,teqReqItem]);
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
